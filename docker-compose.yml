@@ -1,9 +1,12 @@
+# docker-compose is only used for development
 version: "3.9" # version of the docker-compose synttax
 
 services: 
   app: # name of our service
     build: # build a docker file inside a current dir
       context: . # root dir that currently running from
+      args: 
+        - DEV=true # build argument DEV and save it to true
     ports:
       - "8000:8000" # how we access network when we connect to our server
     volumes: # the way of mapping dir from our system to a docker container
