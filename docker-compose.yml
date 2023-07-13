@@ -1,9 +1,14 @@
 # docker-compose is only used for development
+# run this in the terminal:
+# docker-compose build # to build docker-compose services
+# docker-compose up # to start and run a collection of containers
+# docker-compose down # to clean containers
 
 version: "3.9" # version of the docker-compose synttax
 
 services: 
-  app: # name of our service
+
+  app: # name of the app service
     build: # build a docker file inside a current dir
       context: . # root dir that currently running from
       args: 
@@ -14,6 +19,31 @@ services:
       - ./app:/app #automatically syncs the code to the container
     command: > # the default command used to run the service
       sh -c "python manage.py runserver 0.0.0.0:8000"
+    
+    environment: # tells app how to connect to db (same names as below)
+      - DB_HOST=db # name of the service as below
+      - DB_NAME=devdb
+      - DB_USER=devuser
+      - DB_PASS=changeme
+      # - DEBUG=1
+    depends_on: # tell docker-compose that app service depends on db (db starts 1st, then the app)
+      - db
+
+  db: # name of the database service
+    image: postgres:13-alpine
+    volumes:
+      - dev-db-data:/var/lib/postgresql/data # dev-db-data is the name from the volume below
+    # set the initial db config for our new db service
+    # for local dev server (shouldn't be hardcoded for deployment for an actual server (so not for public))
+    environment: # set environment variables below
+      - POSTGRES_DB=devdb # name of db inside postgresql
+      - POSTGRES_USER=devuser
+      - POSTGRES_PASSWORD=changeme
+
+volumes:
+  dev-db-data: # name of the volume
+  dev-static-data:
+
 
 
 # version: "3.9"

@@ -1,4 +1,6 @@
-FROM python:3.9-alpine3.13
+# In the terminal: docker build .
+
+FROM python:3.9-alpine3.18
 LABEL maintainer="liliyasemenenko"
 
 ENV PYTHONUNBUFFERED 1
@@ -14,17 +16,27 @@ EXPOSE 8000
 ARG DEV=false
 RUN python -m venv /py && \
     /py/bin/pip install --upgrade pip && \
+# 
+    # install postgresql-client package inside Alpine image to connet Psycopg2 to Postgresql
     apk add --update --no-cache postgresql-client jpeg-dev && \
+    # install virtual dependency package (groups them inside the "tem-build-deps" dir so that we can remove them later)
+    # should match line 38: .tmp-build-deps
     apk add --update --no-cache --virtual .tmp-build-deps \
+        # list of packages that need to be installed
         build-base postgresql-dev musl-dev zlib zlib-dev linux-headers && \
+#    
     /py/bin/pip install -r /tmp/requirements.txt && \
+# 
     # install dev dependencies is dev=true on docker image
     if [ $DEV = "true" ]; \
         # tmp for current location 
         then /py/bin/pip install -r /tmp/requirements.dev.txt ; \
     fi && \
-    # 
+# 
     rm -rf /tmp && \
+# 
+    # remove packages inside "tmp-build-deps" installed on line 24: build-base postgresql-dev musl-dev zlib zlib-dev linux-headers
+    # to keep Dockerfile lightweight and clean
     apk del .tmp-build-deps && \
     adduser \
         --disabled-password \
