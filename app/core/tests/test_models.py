@@ -6,9 +6,9 @@
 Tests for models.
 """
 
-from django.test import TestCase
+from django.test import TestCase # provides assertion methods like assertEqual, assertTrue, assertRaises
 # helps to get reference to you custom user model
-from django.contrib.auth import get_user_model  # helper function to get the dafault user model, which will then be automatically updated if you make changes to it
+from django.contrib.auth import get_user_model  # goes to UserManager. Helper function to get the dafault user model, which will then be automatically updated if you make changes to it
 
 # test that checks that we can create a user with email
 class ModelTests(TestCase):
@@ -60,3 +60,17 @@ class ModelTests(TestCase):
         # test if create_user method raises an exception when we provide an empty email
         with self.assertRaises(ValueError):
             get_user_model().objects.create_user('','test123')
+
+    def test_create_superuser(self):
+        """Test creating a superuser."""
+
+        # create_superuser: method to create superusers
+        user = get_user_model().objects.create_superuser(
+            'test@example.com',
+            'test123',
+        )
+
+        # field provided by PermissionsMixin
+        self.assertTrue(user.is_superuser)
+        # is_staff: comes from User class in models.py
+        self.assertTrue(user.is_staff) # allows to login into Django Admin

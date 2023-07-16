@@ -34,6 +34,16 @@ class UserManager(BaseUserManager):
         # return the user objec
         return user
 
+    def create_superuser(self, email, password):
+        """Create and return a new superuser."""
+
+        user = self.create_user(email, password)
+        user.is_staff = True
+        user.is_superuser = True
+        user.save(using=self._db)
+
+        return user
+
 
 # AbstractBaseUser: contains functionality for user auth system
 # PermissionsMixin:contains functionality for permissions and fields
