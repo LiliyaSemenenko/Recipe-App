@@ -17,10 +17,16 @@ class UserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields): #  **extra_field: allows to pass new values when calling the model withoyt changing the method itself
         """Create, save, and return a new user"""
 
+        if not email:
+            raise ValueError('User must have an email address.')
+
         # self.model: accessing the model we're associated with (same as defining a new user object)
-        user = self.model(email=email, **extra_fields) #  **extra_field: can provide keyword arguments that will be passed to the model (ex. extra fields)
+        # normalize_email: is a mathod provided by BaseUserManager
+        user = self.model(email=self.normalize_email(email), **extra_fields) #  **extra_field: can provide keyword arguments that will be passed to the model (ex. extra fields)
+
         # set the encrypted password to a user
         user.set_password(password)
+
         # save user model
         # self._db: supports adding multiple databses to a project, in case you want to do it later
         user.save(using=self._db)
