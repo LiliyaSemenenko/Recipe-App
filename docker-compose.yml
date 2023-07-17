@@ -1,19 +1,19 @@
 # docker-compose is only used for development
 # run this in the terminal:
 # docker-compose build # to build docker-compose services
+# docker-compose build --no-cache
 # docker-compose up # to start and run a collection of containers
 # docker-compose down # to clean containers
-
-# In the browser: http://127.0.0.1:8000/
+# In browser: http://127.0.0.1:8000/
 
 version: "3.9" # version of the docker-compose synttax
 
-services: 
+services:
 
   app: # name of the app service
     build: # build a docker file inside a current dir
       context: . # root dir that currently running from
-      args: 
+      args:
         - DEV=true # build argument DEV and save it to true
     ports:
       - "8000:8000" # how we access network when we connect to our server
@@ -23,7 +23,7 @@ services:
       sh -c "python manage.py wait_for_db &&
              python manage.py migrate &&
              python manage.py runserver 0.0.0.0:8000"
-    
+
     environment: # tells app how to connect to db (same names as below)
       - DB_HOST=db # name of the service as below
       - DB_NAME=devdb
