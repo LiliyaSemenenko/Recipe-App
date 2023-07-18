@@ -73,4 +73,4 @@ class ModelTests(TestCase):
         # field provided by PermissionsMixin
         self.assertTrue(user.is_superuser)
         # is_staff: comes from User class in models.py
-        self.assertTrue(user.is_staff) # allows to login into Django Admin
+        self.assertTrue(user.is_staff)  # allows to login into Django Admin
