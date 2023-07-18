@@ -1,14 +1,19 @@
 # ensure to remove emty whitespace in a code by:
-# go to VS File -> Preferences -> Settings -> search whitespace -> check the checkbox "Trim Trailing Whitespace"
-# to test the code in the terminal: docker-compose run --rm app sh -c "python manage.py test"
+# go to VS File -> Preferences -> Settings ->
+# search whitespace -> check the checkbox "Trim Trailing Whitespace"
+# to test the code in the terminal:
+# docker-compose run --rm app sh -c "python manage.py test"
 
 """
 Tests for models.
 """
+# provides assertion methods like assertEqual, assertTrue, assertRaises
+from django.test import TestCase
+# Helps to get reference to you custom user model.
+# Goes to UserManager. Helper function to get the dafault user model,
+# which will then be automatically updated if you make changes to it
+from django.contrib.auth import get_user_model
 
-from django.test import TestCase # provides assertion methods like assertEqual, assertTrue, assertRaises
-# helps to get reference to you custom user model
-from django.contrib.auth import get_user_model  # goes to UserManager. Helper function to get the dafault user model, which will then be automatically updated if you make changes to it
 
 # test that checks that we can create a user with email
 class ModelTests(TestCase):
@@ -16,7 +21,7 @@ class ModelTests(TestCase):
 
     def test_create_user_with_email_successful(self):
         """Test creating a user with an email is successful."""
-        email = 'test@example.com' # @example.com is reserved for testing
+        email = 'test@example.com'  # @example.com is reserved for testing
         password = 'testpass123'
 
         # get_user_model: get the user model
@@ -31,7 +36,8 @@ class ModelTests(TestCase):
         self.assertEqual(user.email, email)
 
         # check if password is correct
-        # check_password: method by dafault baseusermanager to check password through a hashing system
+        # check_password: method by dafault baseusermanager
+        # to check password through a hashing system
         self.assertTrue(user.check_password(password))
 
     def test_new_user_email_normalized(self):
@@ -57,9 +63,10 @@ class ModelTests(TestCase):
     def test_new_user_without_email_raises_error(self):
         """Test that creating a user without an email raises a ValueError."""
 
-        # test if create_user method raises an exception when we provide an empty email
+        # test if create_user method raises an exception
+        # when we provide an empty email
         with self.assertRaises(ValueError):
-            get_user_model().objects.create_user('','test123')
+            get_user_model().objects.create_user('', 'test123')
 
     def test_create_superuser(self):
         """Test creating a superuser."""
