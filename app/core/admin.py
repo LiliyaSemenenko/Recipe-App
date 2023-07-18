@@ -3,10 +3,13 @@ Django admin customization.
 """
 from django.contrib import admin
 # UserAdmin: base class used for default django authentication system
-# BaseUserAdmin: named like that because we don't want our UserAdmin and this one to conflict bcs of same names
+# BaseUserAdmin: named like that because we don't want our UserAdmin
+# and this one to conflict bcs of same names
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-# integrates with django translation system (automatically translating the text)
-from django.utils.translation import gettext_lazy as _ # _(section_to_translate
+# integrates with django translation system
+# (automatically translating the text)
+# _(section_to_translate)
+from django.utils.translation import gettext_lazy as _
 
 
 from core import models
@@ -15,13 +18,13 @@ from core import models
 class UserAdmin(BaseUserAdmin):
     """Define the admin pages for users."""
 
-    ordering = ['id'] # order users by id
-    list_display = ['email', 'name'] # list these items
+    ordering = ['id']  # order users by id
+    list_display = ['email', 'name']  # list these items
 
     # ((title, {'fields': ('','')}),)
     fieldsets = (
-        (None, {'fields': ('email', 'password')}), # title = None
-        (_('Personal Info'), {'fields': ('name',)}), # title = Personal Info
+        (None, {'fields': ('email', 'password')}),  # title = None
+        (_('Personal Info'), {'fields': ('name',)}),  # title = Personal Info
         (
             _('Permissions'),
             {
@@ -39,7 +42,7 @@ class UserAdmin(BaseUserAdmin):
 
     add_fieldsets = (
         (None, {
-            'classes': ('wide',), # used for page look
+            'classes': ('wide',),  # used for page look
             'fields': (
                 'email',
                 'password1',
@@ -51,6 +54,7 @@ class UserAdmin(BaseUserAdmin):
             ),
         }),
     )
+
 
 # register User model and assign custom UserAdmin class
 admin.site.register(models.User, UserAdmin)
