@@ -5,8 +5,15 @@ Views for the user API.
 # a request in default/standartalized way
 # it also allows us override/modify modify the default behaviour
 from rest_framework import generics
+
 # UserSerializer: a serializer created in serializers.py
-from user.serializers import UserSerializer
+from user.serializers import (
+    UserSerializer,
+    AuthTokenSerializer,
+)
+
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.settings import api_settings
 
 
 # CreateAPIView: is part of geerics module
@@ -19,3 +26,13 @@ class CreateUserView(generics.CreateAPIView):
     # It also knows which model to use bcs it's defined in
     # serializers: get_user_model()
     serializer_class = UserSerializer
+
+
+# ObtainAuthToken: view provided by DRF
+class CreateTokenView(ObtainAuthToken):
+    """Create a new auth token for user."""
+
+    # customise serializer
+    serializer_class = AuthTokenSerializer
+    # enable browsable api used for DRF
+    render_classes = api_settings.DEFAULT_RENDERER_CLASSES

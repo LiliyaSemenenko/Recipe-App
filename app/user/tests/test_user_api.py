@@ -16,6 +16,8 @@ from rest_framework import status
 # returns full url path inside our project
 # user as app, create as endpoint
 CREATE_USER_URL = reverse('user:create')
+# url endpoint for creating tokens in our user API
+TOKEN_URL = reverse('user:token')
 
 
 # Add a helper function to create a user for testing
@@ -105,3 +107,52 @@ class PublicUserApiTests(TestCase):
 
         # confirm that user doesN'T exist in the db
         self.assertFalse(user_exists)
+
+    def test_create_token_for_user(self):
+        """Test generates token for valid credentials."""
+
+        user_details = {
+            'name': 'Test Name',
+            'email': 'test@example.com',
+            'password': 'test-user-password123',
+        }
+        # create a new user with user_details
+        create_user(**user_details)
+
+        # sent to token API to log in
+        payload = {
+            'email': user_details['email'],
+            'password': user_details['password'],
+        }
+        # post payload to token url
+        res = self.client.post(TOKEN_URL, payload)
+
+        # check that response includes a token
+        self.assertIn('token', res.data)
+        # check that response status code is HTTP 200 OK
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+    def test_create_token_bad_credentials(self):
+        """Test returns error if credentials invalid."""
+
+        create_user(email='test@example.com', password='goodpass')
+
+        payload = {'email': 'test@example.com', 'password': 'badpass'}
+        res = self.client.post(TOKEN_URL, payload)
+
+        # check that token is not in db bcs it has wrong credentials
+        self.assertNotIn('token', res.data)
+        # check that request is bad bcs login is supposed to be unsuccessful
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_create_token_blank_password(self):
+        """Test posting a blank password returns an error."""
+
+        # pass in a blank password
+        payload = {'email': 'test@example.com', 'password': ''}
+        res = self.client.post(TOKEN_URL, payload)
+
+        # check that token is not in db bcs it has wrong credentials
+        self.assertNotIn('token', res.data)
+        # check that request is bad bcs login is supposed to be unsuccessful
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
