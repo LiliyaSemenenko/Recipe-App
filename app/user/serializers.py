@@ -52,6 +52,30 @@ class UserSerializer(serializers.ModelSerializer):
         # for pw was passed in the Meta class
         return get_user_model().objects.create_user(**validated_data)
 
+    # overriding update method on our UserSerializer
+    # instance: object that's being updated (here: model)
+    # validated_data: data that's already passed through
+    # serializer validation (email, pw, name)
+    def update(self, instance, validated_data):
+        """Update and return user."""
+
+        # pop password: retrieve and remove pw from validated data dict
+        # 'password', None: let user to not update the pw,
+        # so None is an default value
+        password = validated_data.pop('password', None)
+        # super().update(): calls the update method on the
+        # model serializer a base class.
+        # Performs all of the steps for updating the object
+        # (using existing update method).
+        user = super().update(instance, validated_data)
+
+        # if password was specified by the user for the update
+        if password:
+            user.set_password(password)
+            user.save()
+
+        return user  # used by the view later
+
 
 # basic serializer that is not likend to any specific model
 class AuthTokenSerializer(serializers.Serializer):
