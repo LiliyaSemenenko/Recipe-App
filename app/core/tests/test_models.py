@@ -12,7 +12,12 @@ from django.test import TestCase
 # Helps to get reference to you custom user model.
 # Goes to UserManager. Helper function to get the dafault user model,
 # which will then be automatically updated if you make changes to it
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model  # only for user model
+
+# used for storing one of the values of our recipe object
+from decimal import Decimal
+
+from core import models
 
 
 # test that checks that we can create a user with email
@@ -81,3 +86,25 @@ class ModelTests(TestCase):
         self.assertTrue(user.is_superuser)
         # is_staff: comes from User class in models.py
         self.assertTrue(user.is_staff)  # allows to login into Django Admin
+
+    def test_create_recipe(self):
+        """Test creating a recipe is successful."""
+
+        # create a user to assign to our recipe objects
+        user = get_user_model().objects.create_user(
+            'test@example.com',
+            'testpass123',
+        )
+
+        # create a recipe
+        recipe = models.Recipe.objects.create(
+            user=user,  # a user that recipe belongs to
+            title='Sample recipe name',  # title of a recipe
+            time_minutes=5,  # minutes it takes to make a recipe
+            # rough price of what it costs to make a recipe
+            price=Decimal('5.50'),  # Note: integer is better for currency
+            description='Sample recipe description.',  # description of recipe
+        )
+
+        # check if title is represented as string
+        self.assertEqual(str(recipe), recipe.title)

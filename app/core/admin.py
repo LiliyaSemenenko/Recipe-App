@@ -58,3 +58,5 @@ class UserAdmin(BaseUserAdmin):
 
 # register User model and assign custom UserAdmin class
 admin.site.register(models.User, UserAdmin)
+# register Recipe model (no custom Django admin class)
+admin.site.register(models.Recipe)

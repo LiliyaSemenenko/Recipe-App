@@ -8,6 +8,7 @@ from django.contrib.auth.models import (
     BaseUserManager,
     PermissionsMixin,
 )
+from django.conf import settings
 
 
 # define UserManage based of BaseUserManager class provided by Django
@@ -70,3 +71,34 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     # replace username field witha custom email field
     USERNAME_FIELD = 'email'
+
+
+class Recipe(models.Model):  # models.Model: Django base class
+    """Recipe object."""
+
+    # create fields for recipe class
+
+    # set user that recipe belongs to
+    # ForeignKey: sets up a relationship btw
+    # recipe model and another model (AUTH_USER_MODEL here)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        # if related object (user) is deleted,
+        # recepies associated to him will also be deleted
+        on_delete=models.CASCADE,
+    )
+    title = models.CharField(max_length=255)
+    # TextField: holds more and a variety of content than CharField
+    # Note: with some db systems (MySQL), TextField may be worse at performance
+    description = models.TextField(blank=True)
+    # time to create a recipe
+    time_minutes = models.IntegerField()
+    # price of a recipe
+    price = models.DecimalField(max_digits=5, decimal_places=2)
+    # external link to the recipe
+    link = models.CharField(max_length=225, blank=True)
+
+    # returns string representation of an object (title here)
+    # If not sepcified, in Django Admin you'll see ID instead of a title
+    def __str__(self):
+        return self.title
