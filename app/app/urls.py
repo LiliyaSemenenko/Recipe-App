@@ -39,4 +39,6 @@ urlpatterns = [
         name='api-docs',
     ),
     path('api/user/', include('user.urls')),
+    # include all URLs defined inside /recipes/urls.py
+    path('api/recipe/', include('recipe.urls')),
 ]
