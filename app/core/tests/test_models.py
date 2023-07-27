@@ -20,6 +20,12 @@ from decimal import Decimal
 from core import models
 
 
+# helper function for creating a test user
+def create_user(email='user@example.com', password='testpass123'):
+    """Create and reurn a new user."""
+    return get_user_model().objects.create_user(email, password)
+
+
 # test that checks that we can create a user with email
 class ModelTests(TestCase):
     """Test models."""
@@ -108,3 +114,18 @@ class ModelTests(TestCase):
 
         # check if title is represented as string
         self.assertEqual(str(recipe), recipe.title)
+
+    def test_create_tag(self):
+        """Test creating a tag is successful."""
+
+        # create a user to assign to our recipe objects
+        user = create_user()
+
+        # create a recipe
+        tag = models.Tag.objects.create(
+            user=user,  # a user that tag belongs to
+            name='Tag1',  # name of a tag
+        )
+
+        # check if tag.name is represented as string
+        self.assertEqual(str(tag), tag.name)

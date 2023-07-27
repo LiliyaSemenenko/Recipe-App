@@ -97,8 +97,27 @@ class Recipe(models.Model):  # models.Model: Django base class
     price = models.DecimalField(max_digits=5, decimal_places=2)
     # external link to the recipe
     link = models.CharField(max_length=225, blank=True)
+    # tags can be associated to many recepies and vice versa
+    tags = models.ManyToManyField('Tag')
 
     # returns string representation of an object (title here)
     # If not sepcified, in Django Admin you'll see ID instead of a title
     def __str__(self):
         return self.title
+
+
+class Tag(models.Model):
+    """Tags for filtering recipes."""
+
+    user = models.ForeignKey(
+            settings.AUTH_USER_MODEL,
+            # if related object (user) is deleted,
+            # tags associated to him will also be deleted
+            on_delete=models.CASCADE,
+        )
+    name = models.CharField(max_length=255)
+
+    # returns string representation of an object (name here)
+    # If not sepcified, in Django Admin you'll see ID instead of a name
+    def __str__(self):
+        return self.name

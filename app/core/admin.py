@@ -60,3 +60,5 @@ class UserAdmin(BaseUserAdmin):
 admin.site.register(models.User, UserAdmin)
 # register Recipe model (no custom Django admin class)
 admin.site.register(models.Recipe)
+# register Tag model so that it's manageble through Django Admin Interface
+admin.site.register(models.Tag)
