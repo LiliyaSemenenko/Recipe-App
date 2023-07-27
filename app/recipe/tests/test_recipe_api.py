@@ -153,3 +153,31 @@ class PrivateRecipeAPITests(TestCase):
         serializer = RecipeDetailSerializer(recipe)
         # check the detail is being returned correctly
         self.assertEqual(res.data, serializer.data)
+
+    def test_create_racipe(self):
+        """Test creating a recipe throught the API."""
+
+        # Note: not using create_recipe() helper func
+        # bcs goal is to test creating a recipe throught the API.
+        # So we want to pass a payload to the API w/ the contents of a recipe.
+        # Goal: ensure that recipe was created successfully and correctly in db
+
+        # define fields we want to pass to API
+        payload = {
+            'title': 'Sample recipe',
+            'time_minutes': 30,
+            'price': Decimal('5.99'),
+        }
+        # POST recipe with payload to URL endpoint
+        res = self.client.post(RECIPES_URL, payload)  # api/recipe/recipe
+
+        # check that response is 201 since new object was created in a system
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        # GET (retirieve) recipe object by its id
+        recipe = Recipe.objects.get(id=res.data['id'])
+
+        for k, v in payload.items():  # k: key, v: value
+            # getattr(): gets recipe's name, not value
+            self.assertEqual(getattr(recipe, k), v)
+        # check if user that is assigned to api is same as authenticated user
+        self.assertEqual(recipe.user, self.user)
