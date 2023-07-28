@@ -1,12 +1,20 @@
 """
 Views for the recipe APIs.
 """
-from rest_framework import viewsets
+from rest_framework import (
+    viewsets,
+    mixins,  # to add additional functionality in view
+)
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 
-from core.models import Recipe
+from core.models import (
+    Recipe,
+    Tag,
+)
 from recipe import serializers  # imports recipe serializer
+
+# Note: everything needs to be spelled correctly here!!!
 
 
 # ModelViewSet: works directly with a model
@@ -56,3 +64,22 @@ class RecipeViewSet(viewsets.ModelViewSet):
         # override how DRF saves a model in a viewset.
         # set user value to the current authecticated user when object is saved
         serializer.save(user=self.request.user)
+
+
+# ListModelMixin: adds listing fucntionality for listing models
+# GenericViewSet: allows to add mixins to customize viewset functionality
+class TagViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    """Manage tags in the database."""
+    serializer_class = serializers.TagSerializer
+    queryset = Tag.objects.all()
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    # return only query objects for the auth user
+    def get_queryset(self):
+        """Filter quesryset to authentiacted user."""
+        # order_by('-name'): ensures that order is consistent
+        # as db may store it differently
+        return self.queryset.filter(
+            user=self.request.user
+            ).order_by('-name').distinct()

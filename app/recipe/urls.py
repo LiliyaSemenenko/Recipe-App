@@ -16,6 +16,7 @@ router = DefaultRouter()
 # register viewset with that router with name 'recipes'
 # it will assign all endpoints from RecipeViewSet to that endpoint
 router.register('recipes', views.RecipeViewSet)
+router.register('tags', views.TagViewSet)
 
 app_name = 'recipe'  # used for reverse lookup of URLs
 

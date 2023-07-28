@@ -143,10 +143,11 @@ class PrivateRecipeAPITests(TestCase):
 
         # pass in the sample recipe (only 1) to the serializer
         serializer = RecipeDetailSerializer(recipe)
+
         # check the detail is being returned correctly
         self.assertEqual(res.data, serializer.data)
 
-    def test_create_racipe(self):
+    def test_create_recipe(self):
         """Test creating a recipe throught the API."""
 
         # Note: not using create_recipe() helper func
