@@ -70,7 +70,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
 # GenericViewSet: allows to add mixins to customize viewset functionality
 # Note: GenericViewSet needs to be the last param
 # bcs it can override some behavior
-class TagViewSet(mixins.UpdateModelMixin,  # for test_update_tag to work
+class TagViewSet(mixins.DestroyModelMixin,  # for test_delete_tag to work
+                 mixins.UpdateModelMixin,  # for test_update_tag to work
                  mixins.ListModelMixin,
                  viewsets.GenericViewSet):
     """Manage tags in the database."""

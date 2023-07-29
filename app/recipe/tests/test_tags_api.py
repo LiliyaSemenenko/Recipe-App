@@ -134,7 +134,17 @@ class PrivateTagsAPITests(TestCase):
 
     def test_delete_tag(self):
         """Test deleting a tag successful."""
-        pass
+        tag = Tag.objects.create(user=self.user, name='Lunch')
+
+        url = detail_url(tag.id)
+        res = self.client.delete(url)
+
+        # http response for deletion (204)
+        self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
+        # retrieve all the tags associated with that user
+        tags = Tag.objects.filter(user=self.user)
+        # check that result (tags) does not exist in db
+        self.assertFalse(tags.exists())
 
     def test_delete_other_users_tags_error(self):
         """Test trying to delete another users tag gives error."""
