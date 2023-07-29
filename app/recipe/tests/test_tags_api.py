@@ -103,10 +103,6 @@ class PrivateTagsAPITests(TestCase):
         self.assertEqual(res.data[0]['name'], tag.name)
         self.assertEqual(res.data[0]['id'], tag.id)
 
-    def test_create_tag(self):
-        """Test creating a tag throught the API."""
-        pass
-
     def test_update_tag_name(self):
         """Test update tag name."""
 
