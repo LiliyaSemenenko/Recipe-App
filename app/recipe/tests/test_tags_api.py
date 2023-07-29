@@ -22,6 +22,13 @@ def create_user(email='user@example.com', password='testpass123'):
     return get_user_model().objects.create_user(email=email, password=password)
 
 
+def detail_url(tag_id):
+    """Create and return a tag detail URL."""
+
+    # generate a unique URL for a specific recipes detail endpoint.
+    return reverse('recipe:tag-detail', args=[tag_id])
+
+
 # test as unauthenticated user
 class PublicTagsAPITests(TestCase):
     """Test unauthenticated API requests."""
@@ -96,31 +103,30 @@ class PrivateTagsAPITests(TestCase):
         self.assertEqual(res.data[0]['name'], tag.name)
         self.assertEqual(res.data[0]['id'], tag.id)
 
-    def test_create_racipe(self):
+    def test_create_tag(self):
         """Test creating a tag throught the API."""
         pass
 
-    def test_full_update_tag_name(self):
+    def test_update_tag_name(self):
         """Test update tag name."""
-        pass
 
-        # new_tag = create_tag()
+        tag = Tag.objects.create(user=self.user, name='Breakfast')
 
-        # payload = {'name': 'Tag2'}
+        payload = {'name': 'Dinner'}
 
-        # # update new_tag name to Tag2
-        # new_tag.update(payload['name'])
+        # generate a url for a tag with that id
+        url = detail_url(tag.id)
 
-        # # assign value to a response that will make request to the API
-        # res = self.client.update(TAGS_URL, payload)
+        # assign value to a response that will make request to the API
+        res = self.client.patch(url, payload)
 
-        # self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-        # # refreshed tag object in db
-        # new_tag.refresh_from_db()
+        # refreshed tag object in db
+        tag.refresh_from_db()
 
-        # self.assertEqual(res.name, payload['name'])
-        # self.assertEqual(res.user, self.user)
+        self.assertEqual(tag.name, payload['name'])
+        self.assertEqual(tag.user, self.user)
 
     def test_update_user_returns_error(self):
         """Test changing the tags user returns in an error."""

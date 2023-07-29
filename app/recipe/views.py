@@ -68,7 +68,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
 # ListModelMixin: adds listing fucntionality for listing models
 # GenericViewSet: allows to add mixins to customize viewset functionality
-class TagViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+# Note: GenericViewSet needs to be the last param
+# bcs it can override some behavior
+class TagViewSet(mixins.UpdateModelMixin,  # for test_update_tag to work
+                 mixins.ListModelMixin,
+                 viewsets.GenericViewSet):
     """Manage tags in the database."""
     serializer_class = serializers.TagSerializer
     queryset = Tag.objects.all()
