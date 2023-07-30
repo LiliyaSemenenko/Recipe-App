@@ -28,19 +28,10 @@ class RecipeSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'time_minutes', 'price', 'link', 'tags']
         read_only_fields = ['id']
 
-    # add create method to allow creating nested values (tags here)
-    # Notw: overriding default behavior that makes nested values read-only
-    def create(self, validated_data):
-        """Create a recipe."""
+    def _get_or_create_tags(self, tags, recipe):
+        """Handle getting or creating tags as needed."""
 
-        # remove tags from validated_data & assign them to 'tags' variable
-        # if tags don't exist, dafault to an empty list
-        tags = validated_data.pop('tags', [])
-
-        # pass everything but tags to a new recipe
-        recipe = Recipe.objects.create(**validated_data)
-
-        # request an auth user
+        # request an auth user to assign tags to it
         auth_user = self.context['request'].user
 
         # loop through ea tag from validated_data
@@ -53,7 +44,43 @@ class RecipeSerializer(serializers.ModelSerializer):
                 **tag,
             )
             recipe.tags.add(tag_obj)
+
+    # add create method to allow creating nested values (tags here)
+    # Note: overriding default behavior that makes nested values read-only
+    def create(self, validated_data):
+        """Create a recipe."""
+
+        # remove tags from validated_data & assign them to 'tags' variable
+        # if tags don't exist, dafault to an empty list
+        tags = validated_data.pop('tags', [])
+
+        # pass everything but tags to a new recipe
+        recipe = Recipe.objects.create(**validated_data)
+
+        self._get_or_create_tags(tags, recipe)
         return recipe
+
+    def update(self, instance, validated_data):
+        """Update recipe."""
+
+        # remove tags from validated_data & assign them to 'tags' variable
+        # if tags don't exist, dafault to None
+        tags = validated_data.pop('tags', None)
+
+        # empty list
+        if tags is not None:
+            # clear existing tags assigned
+            instance.tags.clear()
+            # create new tags
+            self._get_or_create_tags(tags, instance)
+
+        for attr, value in validated_data.items():
+            # assign to instance
+            setattr(instance, attr, value)
+
+        instance.save()
+
+        return instance
 
 
 # RecipeDetailSerializer is an extention of RecipeSerializer
