@@ -62,5 +62,5 @@ admin.site.register(models.User, UserAdmin)
 admin.site.register(models.Recipe)
 # register Tag model so that it's manageble through Django Admin Interface
 admin.site.register(models.Tag)
-# register Ingredient model so that it's manageble through Django Admin Interface
+# register Ingredient model so that it's manageble through DAI
 admin.site.register(models.Ingredient)

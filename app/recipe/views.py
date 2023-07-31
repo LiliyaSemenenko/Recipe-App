@@ -11,6 +11,7 @@ from rest_framework.permissions import IsAuthenticated
 from core.models import (
     Recipe,
     Tag,
+    Ingredient,
 )
 from recipe import serializers  # imports recipe serializer
 
@@ -75,6 +76,7 @@ class TagViewSet(mixins.DestroyModelMixin,  # for test_delete_tag to work
                  mixins.ListModelMixin,
                  viewsets.GenericViewSet):
     """Manage tags in the database."""
+
     serializer_class = serializers.TagSerializer
     queryset = Tag.objects.all()
     authentication_classes = [TokenAuthentication]
@@ -88,3 +90,38 @@ class TagViewSet(mixins.DestroyModelMixin,  # for test_delete_tag to work
         return self.queryset.filter(
             user=self.request.user
             ).order_by('-name').distinct()
+
+
+class IngredientViewSet(
+                 mixins.ListModelMixin,
+                 viewsets.GenericViewSet):
+    """Mange ingredients in database."""
+
+    serializer_class = serializers.IngredientDetailSerializer
+    queryset = Ingredient.objects.all()
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    # return only query objects for the auth user
+    def get_queryset(self):
+        """Filter quesryset to authentiacted user."""
+        # order_by('-name'): ensures that order is consistent
+        # as db may store it differently
+        return self.queryset.filter(
+            user=self.request.user
+            ).order_by('-name').distinct()
+
+    def get_serializer_class(self):
+        """Return the serializer class for request."""
+
+        # if calling 'list' endpoint, which is HTTP GET, to the root of API,
+        # it'll come up as action list and
+        # return the serialization for the list view
+        if self.action == 'list':  # listing recipes
+
+            # return a reference to a class, not an object 'RecipeSerializer()'
+            return serializers.IngredientSerializer
+
+        # if anything besides listing is called,
+        # configure serializer class in IngViewSet
+        return self.serializer_class

@@ -3,7 +3,7 @@ Serializers for recipe API.
 """
 from rest_framework import serializers
 
-from core.models import Recipe, Tag
+from core.models import Recipe, Tag, Ingredient
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -13,6 +13,15 @@ class TagSerializer(serializers.ModelSerializer):
         model = Tag
         fields = ['id', 'name']
         read_only_fields = ['id']
+
+
+class IngredientSerializer(serializers.ModelSerializer):
+    """Serializer for ingredients."""
+
+    class Meta:
+        model = Ingredient
+        fields = ['id', 'name', ]
+        red_only_field = ['id']
 
 
 class RecipeSerializer(serializers.ModelSerializer):
@@ -90,3 +99,12 @@ class RecipeDetailSerializer(RecipeSerializer):
     # pass all the meta values from Meta() in RecipeSerializer
     class Meta(RecipeSerializer.Meta):
         fields = RecipeSerializer.Meta.fields + ['description']
+
+
+# IngredientDetailSerializer is an extention of RecipeSerializer
+class IngredientDetailSerializer(RecipeSerializer):
+    """Serializer for ingredient detail view."""
+
+    # pass all the meta values from Meta() in IngredientSerializer
+    class Meta(IngredientSerializer.Meta):
+        fields = IngredientSerializer.Meta.fields + ['description']
