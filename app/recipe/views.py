@@ -95,11 +95,13 @@ class TagViewSet(mixins.DestroyModelMixin,  # for test_delete_tag to work
 class IngredientViewSet(
                  mixins.ListModelMixin,
                  viewsets.GenericViewSet):
-    """Mange ingredients in database."""
+    """Manage ingredients in database."""
 
     serializer_class = serializers.IngredientDetailSerializer
     queryset = Ingredient.objects.all()
+    # use token to auth
     authentication_classes = [TokenAuthentication]
+    # all users must be auth to use this endpoint
     permission_classes = [IsAuthenticated]
 
     # return only query objects for the auth user

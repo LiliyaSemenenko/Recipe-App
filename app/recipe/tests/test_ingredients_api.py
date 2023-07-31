@@ -16,7 +16,7 @@ from recipe.serializers import IngredientSerializer
 INGREDIENTS_URL = reverse('recipe:ingredient-list')
 
 
-def create_user(email='user@example.com', password='testpass123'):
+def create_user(email='userIng@example.com', password='testpass123'):
     """Create and return a new user."""
     return get_user_model().objects.create_user(email=email, password=password)
 
@@ -71,3 +71,23 @@ class PrivateIngredientsAPITests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         # check if db data is same as serializer data
         self.assertEqual(res.data, serializer.data)
+
+    def test_ingredients_limited_to_user(self):
+        """Test list of ingredients is limited to authenticated user."""
+
+        user2 = create_user(email='userIng2@example.com')
+        Ingredient.objects.create(user=user2, name='Tomato')
+
+        ingredient = Ingredient.objects.create(user=self.user, name='Rice')
+
+        res = self.client.get(INGREDIENTS_URL)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        print(res.data)  # Print the content of res.data
+
+        # check that only 1 ingr is returned for auth user (self.user)
+        self.assertEqual(len(res.data), 1)
+        self.assertEqual(res.data[0]['name'], ingredient.name)
+        self.assertEqual(res.data[0]['id'], ingredient.id)
+        # self.assertEqual(res.data.ingredients.count(), 1)

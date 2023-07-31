@@ -99,6 +99,8 @@ class Recipe(models.Model):  # models.Model: Django base class
     link = models.CharField(max_length=225, blank=True)
     # tags can be associated to many recepies and vice versa
     tags = models.ManyToManyField('Tag')
+    # ingrediens can be associated to many recepies and vice versa
+    ingredients = models.ManyToManyField('Ingredient')
 
     # returns string representation of an object (title here)
     # If not sepcified, in Django Admin you'll see ID instead of a title

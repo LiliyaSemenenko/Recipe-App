@@ -31,6 +31,8 @@ class RecipeSerializer(serializers.ModelSerializer):
     # many=True: means its a list of tags
     tags = TagSerializer(many=True, required=False)
 
+    # ingredients = IngredientSerializer(many=True, required=False)
+
     # set the Recipe model to this serializer
     class Meta:
         model = Recipe
