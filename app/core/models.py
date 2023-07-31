@@ -121,3 +121,19 @@ class Tag(models.Model):
     # If not sepcified, in Django Admin you'll see ID instead of a name
     def __str__(self):
         return self.name
+
+
+class Ingredient(models.Model):
+    """Ingredients for recipes."""
+
+    user = models.ForeignKey(
+            settings.AUTH_USER_MODEL,
+            # delete ingredients if associated user was deleted
+            on_delete=models.CASCADE,
+        )
+
+    name = models.CharField(max_length=225)
+
+    # returns string representation of an ingredient name
+    def __str__(self):
+        return self.name
