@@ -84,10 +84,22 @@ class PrivateIngredientsAPITests(TestCase):
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-        print(res.data)  # Print the content of res.data
-
         # check that only 1 ingr is returned for auth user (self.user)
         self.assertEqual(len(res.data), 1)
         self.assertEqual(res.data[0]['name'], ingredient.name)
         self.assertEqual(res.data[0]['id'], ingredient.id)
-        # self.assertEqual(res.data.ingredients.count(), 1)
+
+    def test_update_ingredient(self):
+        """Test updating ingredient name."""
+
+        ingredient = Ingredient.objects.create(
+            user=self.user, name='Strawberry')
+
+        payload = {'name': 'Cherry'}
+
+        url = detail_url(ingredient.id)
+        res = self.client.patch(url, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        ingredient.refresh_from_db()
+        self.assertEqual(ingredient.name, payload['name'])

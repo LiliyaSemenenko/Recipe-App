@@ -109,4 +109,4 @@ class IngredientDetailSerializer(RecipeSerializer):
 
     # pass all the meta values from Meta() in IngredientSerializer
     class Meta(IngredientSerializer.Meta):
-        fields = IngredientSerializer.Meta.fields + ['description']
+        fields = IngredientSerializer.Meta.fields
