@@ -20,7 +20,7 @@ class IngredientSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Ingredient
-        fields = ['id', 'name', ]
+        fields = ['id', 'name']
         red_only_field = ['id']
 
 
@@ -30,15 +30,17 @@ class RecipeSerializer(serializers.ModelSerializer):
     # link tag serializer
     # many=True: means its a list of tags
     tags = TagSerializer(many=True, required=False)
-
-    # ingredients = IngredientSerializer(many=True, required=False)
+    ingredients = IngredientSerializer(many=True, required=False)
 
     # set the Recipe model to this serializer
     class Meta:
         model = Recipe
-        fields = ['id', 'title', 'time_minutes', 'price', 'link', 'tags']
+        fields = ['id', 'title', 'time_minutes', 'price', 'link', 'tags',
+                  'ingredients', ]
         read_only_fields = ['id']
 
+    # Note: when using _ before method, it means the method is internal only
+    # and only called inside this serializer, not anywhere else
     def _get_or_create_tags(self, tags, recipe):
         """Handle getting or creating tags as needed."""
 
@@ -56,6 +58,19 @@ class RecipeSerializer(serializers.ModelSerializer):
             )
             recipe.tags.add(tag_obj)
 
+    def _get_or_create_ingredients(self, ingredients, recipe):
+        """Handle getting or creating ingredients as needed."""
+
+        # retrieve auth user
+        auth_user = self.context['request'].user
+
+        for ingredient in ingredients:
+            ingr_obj, created = Ingredient.objects.get_or_create(
+                user=auth_user,
+                **ingredient,
+            )
+            recipe.ingredients.add(ingr_obj)
+
     # add create method to allow creating nested values (tags here)
     # Note: overriding default behavior that makes nested values read-only
     def create(self, validated_data):
@@ -64,11 +79,14 @@ class RecipeSerializer(serializers.ModelSerializer):
         # remove tags from validated_data & assign them to 'tags' variable
         # if tags don't exist, dafault to an empty list
         tags = validated_data.pop('tags', [])
+        ingredients = validated_data.pop('ingredients', [])
 
-        # pass everything but tags to a new recipe
+        # pass everything but tags/ingredients to a new recipe
         recipe = Recipe.objects.create(**validated_data)
 
         self._get_or_create_tags(tags, recipe)
+        self._get_or_create_ingredients(ingredients, recipe)
+
         return recipe
 
     def update(self, instance, validated_data):
@@ -77,6 +95,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         # remove tags from validated_data & assign them to 'tags' variable
         # if tags don't exist, dafault to None
         tags = validated_data.pop('tags', None)
+        # ingredients = validated_data.pop('ingredients', None)
 
         # empty list
         if tags is not None:
@@ -84,6 +103,13 @@ class RecipeSerializer(serializers.ModelSerializer):
             instance.tags.clear()
             # create new tags
             self._get_or_create_tags(tags, instance)
+
+        # empty list
+        # if ingredients:
+        #     # clear existing tags assigned
+        #     instance.ingredients.clear()
+        #     # create new tags
+        #     self._get_or_create_ingredients(ingredients, instance)
 
         for attr, value in validated_data.items():
             # assign to instance
@@ -101,12 +127,3 @@ class RecipeDetailSerializer(RecipeSerializer):
     # pass all the meta values from Meta() in RecipeSerializer
     class Meta(RecipeSerializer.Meta):
         fields = RecipeSerializer.Meta.fields + ['description']
-
-
-# IngredientDetailSerializer is an extention of RecipeSerializer
-class IngredientDetailSerializer(RecipeSerializer):
-    """Serializer for ingredient detail view."""
-
-    # pass all the meta values from Meta() in IngredientSerializer
-    class Meta(IngredientSerializer.Meta):
-        fields = IngredientSerializer.Meta.fields

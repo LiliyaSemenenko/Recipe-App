@@ -100,7 +100,7 @@ class IngredientViewSet(
                 viewsets.GenericViewSet):
     """Manage ingredients in database."""
 
-    serializer_class = serializers.IngredientDetailSerializer
+    serializer_class = serializers.IngredientSerializer
     queryset = Ingredient.objects.all()
     # use token to auth
     authentication_classes = [TokenAuthentication]
@@ -115,18 +115,3 @@ class IngredientViewSet(
         return self.queryset.filter(
             user=self.request.user
             ).order_by('-name').distinct()
-
-    def get_serializer_class(self):
-        """Return the serializer class for request."""
-
-        # if calling 'list' endpoint, which is HTTP GET, to the root of API,
-        # it'll come up as action list and
-        # return the serialization for the list view
-        if self.action == 'list':  # listing recipes
-
-            # return a reference to a class, not an object 'RecipeSerializer()'
-            return serializers.IngredientSerializer
-
-        # if anything besides listing is called,
-        # configure serializer class in IngViewSet
-        return self.serializer_class
