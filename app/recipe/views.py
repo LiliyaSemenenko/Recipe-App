@@ -67,50 +67,40 @@ class RecipeViewSet(viewsets.ModelViewSet):
         serializer.save(user=self.request.user)
 
 
+# base of other viewset classes (RecipeAttr: tags, ingredients)
 # ListModelMixin: adds listing fucntionality for listing models
 # GenericViewSet: allows to add mixins to customize viewset functionality
-# Note: GenericViewSet needs to be the last param
-# bcs it can override some behavior
-class TagViewSet(mixins.DestroyModelMixin,  # for test_delete_tag to work
-                 mixins.UpdateModelMixin,  # for test_update_tag to work
-                 mixins.ListModelMixin,
-                 viewsets.GenericViewSet):
+# Note: GenericViewSet needs to be the last param bcs
+# it can override some behavior
+class BaseRecipeAttrViewSet(mixins.DestroyModelMixin,  # for delete_tag to work
+                            mixins.ListModelMixin,  # for update_tag to work
+                            # router adds ingredient-detail url automatically
+                            mixins.UpdateModelMixin,
+                            viewsets.GenericViewSet):
+    """Base viewset for recipe attributes."""
+
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    # return only query objects for the auth user
+    def get_queryset(self):
+        """Filter quesryset to authentiacted user."""
+        # order_by('-name'): ensures that order is consistent
+        # as db may store it differently
+        return self.queryset.filter(
+            user=self.request.user
+            ).order_by('-name').distinct()
+
+
+class TagViewSet(BaseRecipeAttrViewSet):
     """Manage tags in the database."""
 
     serializer_class = serializers.TagSerializer
     queryset = Tag.objects.all()
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
-
-    # return only query objects for the auth user
-    def get_queryset(self):
-        """Filter quesryset to authentiacted user."""
-        # order_by('-name'): ensures that order is consistent
-        # as db may store it differently
-        return self.queryset.filter(
-            user=self.request.user
-            ).order_by('-name').distinct()
 
 
-class IngredientViewSet(mixins.DestroyModelMixin,
-                        mixins.ListModelMixin,
-                        # router adds ingredient-detail url automatically
-                        mixins.UpdateModelMixin,
-                        viewsets.GenericViewSet):
+class IngredientViewSet(BaseRecipeAttrViewSet):
     """Manage ingredients in database."""
 
     serializer_class = serializers.IngredientSerializer
     queryset = Ingredient.objects.all()
-    # use token to auth
-    authentication_classes = [TokenAuthentication]
-    # all users must be auth to use this endpoint
-    permission_classes = [IsAuthenticated]
-
-    # return only query objects for the auth user
-    def get_queryset(self):
-        """Filter quesryset to authentiacted user."""
-        # order_by('-name'): ensures that order is consistent
-        # as db may store it differently
-        return self.queryset.filter(
-            user=self.request.user
-            ).order_by('-name').distinct()
