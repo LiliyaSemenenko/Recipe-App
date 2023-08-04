@@ -92,12 +92,11 @@ class TagViewSet(mixins.DestroyModelMixin,  # for test_delete_tag to work
             ).order_by('-name').distinct()
 
 
-class IngredientViewSet(
-                mixins.DestroyModelMixin,
-                mixins.ListModelMixin,
-                # router adds ingredient-detail url automatically
-                mixins.UpdateModelMixin,
-                viewsets.GenericViewSet):
+class IngredientViewSet(mixins.DestroyModelMixin,
+                        mixins.ListModelMixin,
+                        # router adds ingredient-detail url automatically
+                        mixins.UpdateModelMixin,
+                        viewsets.GenericViewSet):
     """Manage ingredients in database."""
 
     serializer_class = serializers.IngredientSerializer

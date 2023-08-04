@@ -81,26 +81,38 @@ class Recipe(models.Model):  # models.Model: Django base class
     # set user that recipe belongs to
     # ForeignKey: sets up a relationship btw
     # recipe model and another model (AUTH_USER_MODEL here)
-    user = models.ForeignKey(
+    # It links each recipe to a specific user, and since it's a ForeignKey,
+    # it is required to have a value pointing to a valid user.
+    user = models.ForeignKey(  # REQUIRED field
         settings.AUTH_USER_MODEL,
         # if related object (user) is deleted,
         # recepies associated to him will also be deleted
         on_delete=models.CASCADE,
     )
-    title = models.CharField(max_length=255)
+    # CharField without blank=True means it must have a non-empty value
+    title = models.CharField(max_length=255)  # REQUIRED field
+
+    # time to create a recipe
+    # IntegerField is required and must have a value.
+    time_minutes = models.IntegerField()  # REQUIRED field
+
+    # price of a recipe
+    # DecimalFieldis required and must have a value.
+    # REQUIRED field
+    price = models.DecimalField(max_digits=5, decimal_places=2)
+
     # TextField: holds more and a variety of content than CharField
     # Note: with some db systems (MySQL), TextField may be worse at performance
-    description = models.TextField(blank=True)
-    # time to create a recipe
-    time_minutes = models.IntegerField()
-    # price of a recipe
-    price = models.DecimalField(max_digits=5, decimal_places=2)
+    description = models.TextField(blank=True)  # NOT REQUIRED (blank=True)
+
     # external link to the recipe
-    link = models.CharField(max_length=225, blank=True)
+    link = models.CharField(max_length=225, blank=True)  # NOT REQUIRED
+
     # tags can be associated to many recepies and vice versa
-    tags = models.ManyToManyField('Tag')
+    tags = models.ManyToManyField('Tag')  # NOT REQUIRED
+
     # ingrediens can be associated to many recepies and vice versa
-    ingredients = models.ManyToManyField('Ingredient')
+    ingredients = models.ManyToManyField('Ingredient')  # NOT REQUIRED
 
     # returns string representation of an object (title here)
     # If not sepcified, in Django Admin you'll see ID instead of a title

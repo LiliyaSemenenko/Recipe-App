@@ -95,21 +95,20 @@ class RecipeSerializer(serializers.ModelSerializer):
         # remove tags from validated_data & assign them to 'tags' variable
         # if tags don't exist, dafault to None
         tags = validated_data.pop('tags', None)
-        # ingredients = validated_data.pop('ingredients', None)
+        ingredients = validated_data.pop('ingredients', None)
 
-        # empty list
-        if tags is not None:
+        # None: "if tags" doesn't cover [], ''
+        if tags is not None:  # anything other than None value
             # clear existing tags assigned
             instance.tags.clear()
             # create new tags
             self._get_or_create_tags(tags, instance)
 
-        # empty list
-        # if ingredients:
-        #     # clear existing tags assigned
-        #     instance.ingredients.clear()
-        #     # create new tags
-        #     self._get_or_create_ingredients(ingredients, instance)
+        if ingredients is not None:
+            # clear existing tags assigned
+            instance.ingredients.clear()
+            # create new tags
+            self._get_or_create_ingredients(ingredients, instance)
 
         for attr, value in validated_data.items():
             # assign to instance
