@@ -24,7 +24,8 @@ ARG DEV=false
 RUN python -m venv /py && \
     /py/bin/pip install --upgrade pip && \
 #
-    # install postgresql-client package inside Alpine image to connet Psycopg2 to Postgresql
+    # install postgresql-client package inside Alpine image to connect Psycopg2 to Postgresql
+    # remains dependencies on docker image after it's built
     apk add --update --no-cache postgresql-client jpeg-dev && \
     # install virtual dependency package (groups them inside the "tem-build-deps" dir so that we can remove them later)
     # should match line 38: .tmp-build-deps

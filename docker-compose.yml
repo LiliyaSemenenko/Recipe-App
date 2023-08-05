@@ -19,6 +19,8 @@ services:
       - "8000:8000" # how we access network when we connect to our server
     volumes: # the way of mapping dir from our system to a docker container
       - ./app:/app #automatically syncs the code to the container
+      - dev-static-data:/vol/web  # set up a volume to volume dir created in docker image
+                                  # reason: for persistent data when developing on local machine (maintained in same dir)
     command: > # the default command used to run the service
       sh -c "python manage.py wait_for_db &&
              python manage.py migrate &&

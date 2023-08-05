@@ -21,6 +21,9 @@ from django.contrib import admin
 # include: helper function that allows to include urls from a different app
 from django.urls import path, include
 
+from django.conf.urls.static import static  # import static url
+from django.conf import settings  # to retrieve settings
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -42,3 +45,11 @@ urlpatterns = [
     # include all URLs defined inside /recipes/urls.py
     path('api/recipe/', include('recipe.urls')),
 ]
+
+# mimic behavior expected from Django dev server
+# allow it to serve media files from dev server (not happening by default)
+if settings.DEBUG:  # if debug mode (dev server o local machine)
+    urlpatterns += static(
+        settings.MEDIA_URL,
+        document_root=settings.MEDIA_ROOT,
+    )
