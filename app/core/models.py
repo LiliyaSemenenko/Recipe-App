@@ -1,6 +1,8 @@
 """
 Database models.
 """
+import uuid  # to generate uuid
+import os  # for file path management functions
 
 from django.db import models
 from django.contrib.auth.models import (
@@ -9,6 +11,22 @@ from django.contrib.auth.models import (
     PermissionsMixin,
 )
 from django.conf import settings
+
+
+# instance: of the object that the image is being uploaded to
+# filename:name of original file that's being uploaded
+def recipe_image_file_path(instance, filename):
+    """Generate file path for new recipe image."""
+
+    # extract the extention of a filename
+    ext = os.path.splitext(filename)[1]
+    # create own filename with uuid and keep the original extenetion
+    filename = f'{uuid.uuid4()}{ext}'
+
+    # Create a URL path for an image
+    # os.path.join(): ensures that string created in format for
+    # operating system that's running on
+    return os.path.join('uploads', 'recipe', filename)
 
 
 # define UserManage based of BaseUserManager class provided by Django
@@ -113,6 +131,11 @@ class Recipe(models.Model):  # models.Model: Django base class
 
     # ingrediens can be associated to many recepies and vice versa
     ingredients = models.ManyToManyField('Ingredient')  # NOT REQUIRED
+
+    # Note: recipe_image_file_path is a reference to a func, not calling it
+    # That's how you specify the path you want to upload files to
+    # NOT REQUIRED
+    image = models.ImageField(null=True, upload_to=recipe_image_file_path)
 
     # returns string representation of an object (title here)
     # If not sepcified, in Django Admin you'll see ID instead of a title

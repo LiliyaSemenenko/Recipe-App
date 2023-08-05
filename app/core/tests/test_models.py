@@ -7,6 +7,8 @@
 """
 Tests for models.
 """
+# patch: to replace behavior for testing purposes
+from unittest.mock import patch
 # provides assertion methods like assertEqual, assertTrue, assertRaises
 from django.test import TestCase
 # Helps to get reference to you custom user model.
@@ -141,3 +143,23 @@ class ModelTests(TestCase):
 
         # check if tag.name is represented as string
         self.assertEqual(str(ingredient), ingredient.name)
+
+    # add decorator to patch uuid func that will be imported to models
+    # Reason: to replace behavior of uuid (instead of unique identifier)
+    @patch('core.models.uuid.uuid4')
+    # uuid: unique identifier for the uploading file (images)
+    def test_recipe_file_name_uuid(self, mock_uuid):
+        """Test generating image path."""
+
+        uuid = 'test-uuid'  # mocked response
+        # set return value to uuid string
+        mock_uuid.return_value = uuid
+        # recipe_image_file_path: generates path to the uploaded image
+        # None: replaces the instance
+        # example.jpg: original name of the uploaded
+        file_path = models.recipe_image_file_path(None, 'example.jpg')
+
+        # check that result of function keeps same extentition
+        # uploads/recipe/{uuid}.jpg, replaces "example" with {uuid},
+        # and stored in uploads/recipe/
+        self.assertEqual(file_path, f'uploads/recipe/{uuid}.jpg')
