@@ -4,7 +4,10 @@ Views for the recipe APIs.
 from rest_framework import (
     viewsets,
     mixins,  # to add additional functionality in view
+    status,  # to check HTTP response code
 )
+from rest_framework.decorators import action
+from rest_framework.response import Response
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 
@@ -52,6 +55,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
         if self.action == 'list':  # listing recipes
             # return a reference to a class, not an object 'RecipeSerializer()'
             return serializers.RecipeSerializer
+
+        # upload_image: custom action added below by upload_image()
+        elif self.action == 'upload_image':
+            return serializers.RecipeImageSerializer
+
         # if anything besides listing ia called
         return self.serializer_class  # configured serializer class
 
@@ -65,6 +73,30 @@ class RecipeViewSet(viewsets.ModelViewSet):
         # override how DRF saves a model in a viewset.
         # set user value to the current authecticated user when object is saved
         serializer.save(user=self.request.user)
+
+    # added a custom function specifying HTTP method POST,
+    # action will to detail endpoint/portion of viewset (recipe id),
+    # specify a custom url_path
+    @action(methods=['POST'], detail=True, url_path='upload_image')
+    def upload_image(self, request, pk=None):
+        """Upload an image to recipe."""
+
+        # get recipe object using primary key (pk) specified for the action
+        recipe = self.get_object()
+        # runs through get_serializer_class that would get an instance
+        # of serializer and return the image serializer from
+        # get_serializer_class code
+        # data=request.data: passing in the data posted to the endpoint
+        serializer = self.get_serializer(recipe, data=request.data)
+
+        # check if serializer is valid
+        if serializer.is_valid():
+            # save the image to the db
+            serializer.save()
+            # response with data and status
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        # return errors included with the serializer
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 # base of other viewset classes (RecipeAttr: tags, ingredients)
