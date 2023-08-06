@@ -125,7 +125,7 @@ class RecipeDetailSerializer(RecipeSerializer):
 
     # pass all the meta values from Meta() in RecipeSerializer
     class Meta(RecipeSerializer.Meta):
-        fields = RecipeSerializer.Meta.fields + ['description']
+        fields = RecipeSerializer.Meta.fields + ['description', 'image']
 
 
 # when uploading imgae, only field is accepted, not the other values
