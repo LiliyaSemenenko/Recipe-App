@@ -1,6 +1,12 @@
 """
 Views for the recipe APIs.
 """
+from drf_spectacular.utils import (
+    extend_schema_view,
+    extend_schema,
+    OpenApiParameter,
+    OpenApiTypes,
+)
 from rest_framework import (
     viewsets,
     mixins,  # to add additional functionality in view
@@ -18,9 +24,31 @@ from core.models import (
 )
 from recipe import serializers  # imports recipe serializer
 
-# Note: everything needs to be spelled correctly here!!!
 
-
+# add documentation changes
+# extend the schema for the list endpoint (the one we add filters to)
+@extend_schema_view(  # extend the auto-generated schema by drf-spectacular
+    list=extend_schema(
+        # parameters that passed in to the requests that are made
+        # to the list api for this view
+        parameters=[
+            # allows to specify details of params accepted in API request
+            OpenApiParameter(
+                'tags',  # name of the parameter to filter
+                # type is a str bcs it accepts
+                # a comma separated list of IDs as a string
+                OpenApiTypes.STR,
+                # description for a dev who's reading a documentation
+                description='Comma separated list of tag IDs to filter.',
+            ),
+            OpenApiParameter(
+                'ingredients',
+                OpenApiTypes.STR,
+                description='Comma separated list of ingr IDs to filter.',
+            )
+        ]
+    )
+)
 # ModelViewSet: works directly with a model
 # (good for using existing logic from existing
 # serializer to peform CRUD operations)
@@ -35,6 +63,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
     # you need to be authenticated to make a request to API
     permission_classes = [IsAuthenticated]
 
+    def _params_to_ints(self, qs):
+        """Convert a list of strings to integers."""
+        # string: "1,2,3"
+        # split them by comma, convert each to int
+        return [int(str_id) for str_id in qs.split(',')]
+
     # override get query set method provided by model viewset
     # this ensures the recepies are filtered down to authenticated user
     def get_queryset(self):
@@ -44,7 +78,28 @@ class RecipeViewSet(viewsets.ModelViewSet):
         # that is assigned to request.
         # User must be authenticated bcs of TokenAuthentication
         # and IsAuthenticated as a permission class.
-        return self.queryset.filter(user=self.request.user).order_by('-id')
+        # return self.queryset.filter(user=self.request.user).order_by('-id')
+
+        # retrieve tags/ingr as comma separated list
+        # provided as a string (or None)
+        tags = self.request.query_params.get('tags')
+        ingredients = self.request.query_params.get('ingredients')
+        # define a quesryset to apply filters later
+        # and return the resulting filtered quesryset
+        queryset = self.queryset
+        # if there're tags/ingrs in quesryset
+        if tags:
+            # convert ids to integers
+            tag_ids = self._params_to_ints(tags)
+            # filter related fields (tags by id)
+            queryset = queryset.filter(tags__id__in=tag_ids)
+        if ingredients:
+            ingredient_ids = self._params_to_ints(ingredients)
+            queryset = queryset.filter(ingredients__id__in=ingredient_ids)
+
+        return queryset.filter(
+            user=self.request.user
+            ).order_by('-id').distinct()  # distinct: to avoid duplicates
 
     def get_serializer_class(self):
         """Return the serializer class for request."""

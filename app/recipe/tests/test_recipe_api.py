@@ -548,6 +548,61 @@ class PrivateRecipeAPITests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(recipe.ingredients.count(), 0)
 
+    def test_filter_by_tags(self):
+        """Test filtering recipes by tags."""
+        r1 = create_recipe(user=self.user, title='Creme Brulee')
+        r2 = create_recipe(user=self.user, title='Panna Cotta')
+        r3 = create_recipe(user=self.user, title='Keema')
+
+        t1 = Tag.objects.create(user=self.user, name='French')
+        t2 = Tag.objects.create(user=self.user, name='Italian')
+
+        # add tags 1,2 to recipes
+        r1.tags.add(t1)
+        r2.tags.add(t2)
+
+        params = {'tags': f'{t1.id},{t2.id}'}
+
+        # get all recipes (1,2) associated with tag IDs in params
+        res = self.client.get(RECIPES_URL, params)
+
+        # get serialized version of recipes
+        s1 = RecipeSerializer(r1)
+        s2 = RecipeSerializer(r2)
+        s3 = RecipeSerializer(r3)
+
+        self.assertIn(s1.data, res.data)
+        self.assertIn(s2.data, res.data)
+        self.assertNotIn(s3.data, res.data)
+
+    def test_filter_by_ingredients(self):
+        """Test filtering recipes by ingredients."""
+
+        r1 = create_recipe(user=self.user, title='Posh Beans on Toast')
+        r2 = create_recipe(user=self.user, title='Chicken Cacciatore')
+        r3 = create_recipe(user=self.user, title='Red Lentil Daal')
+
+        i1 = Ingredient.objects.create(user=self.user, name='Feta Cheese')
+        i2 = Ingredient.objects.create(user=self.user, name='Chicken')
+
+        # add ingredients 1,2 to recipes
+        r1.ingredients.add(i1)
+        r2.ingredients.add(i2)
+
+        params = {'ingredients': f'{i1.id},{i2.id}'}
+
+        # get all recipes (1,2) associated with ingredient IDs in params
+        res = self.client.get(RECIPES_URL, params)
+
+        # get serialized version of recipes
+        s1 = RecipeSerializer(r1)
+        s2 = RecipeSerializer(r2)
+        s3 = RecipeSerializer(r3)
+
+        self.assertIn(s1.data, res.data)
+        self.assertIn(s2.data, res.data)
+        self.assertNotIn(s3.data, res.data)
+
 
 class ImageUploadTests(TestCase):
     """Tests for the image uploads API"""
