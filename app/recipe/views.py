@@ -154,6 +154,18 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@extend_schema_view(
+    list=extend_schema(
+        parameters=[
+            OpenApiParameter(
+                'assigned_only',
+                # enum: enumerator that ensures that only 0 or 1 are passed in
+                OpenApiTypes.INT, enum=[0, 1],
+                description='Filter by items assigned to recipes.',
+            )
+        ]
+    )
+)
 # base of other viewset classes (RecipeAttr: tags, ingredients)
 # ListModelMixin: adds listing fucntionality for listing models
 # GenericViewSet: allows to add mixins to customize viewset functionality
@@ -172,9 +184,23 @@ class BaseRecipeAttrViewSet(mixins.DestroyModelMixin,  # for delete_tag to work
     # return only query objects for the auth user
     def get_queryset(self):
         """Filter quesryset to authentiacted user."""
+
+        # get assigned_only value
+        assigned_only = bool(  # bool to convert 1/0 to T/F
+            # return assigned_only or 0 if no value is provided
+            int(self.request.query_params.get('assigned_only', 0))
+        )
+
+        queryset = self.queryset
+
+        if assigned_only:
+            # filter by recipes associated with a value
+            queryset = queryset.filter(recipe__isnull=False)
+
         # order_by('-name'): ensures that order is consistent
         # as db may store it differently
-        return self.queryset.filter(
+        # Note: no self.queryset bcs self will not apply filters
+        return queryset.filter(
             user=self.request.user
             ).order_by('-name').distinct()
 
