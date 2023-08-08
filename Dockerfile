@@ -13,6 +13,7 @@ ENV PYTHONUNBUFFERED 1
 
 COPY ./requirements.txt /tmp/requirements.txt
 COPY ./requirements.dev.txt /tmp/requirements.dev.txt
+# creating a dir scripts used for creating helper scripts run by docker app
 COPY ./scripts /scripts
 COPY ./app /app
 WORKDIR /app
@@ -31,6 +32,7 @@ RUN python -m venv /py && \
     # should match line 38: .tmp-build-deps
     apk add --update --no-cache --virtual .tmp-build-deps \
         # list of packages that need to be installed
+        # linux-headers: requirment for uwsgi package installation
         build-base postgresql-dev musl-dev zlib zlib-dev linux-headers && \
 #
     /py/bin/pip install -r /tmp/requirements.txt && \
@@ -54,10 +56,15 @@ RUN python -m venv /py && \
     mkdir -p /vol/web/static && \
     chown -R django-user:django-user /vol && \
     chmod -R 755 /vol && \
+    # to make scripts dir executable
     chmod -R +x /scripts
 
+# change path dir to scripts
 ENV PATH="/scripts:/py/bin:$PATH"
 
 USER django-user
 
+# name of the script that runs the app
+# default command that's run for docker containers that are spawned
+# from our image that's built from this Docker file.
 CMD ["run.sh"]
