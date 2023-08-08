@@ -1,0 +1,46 @@
+version: "3.9"
+
+services:  # add an app service
+  app:  # app service called 'app'
+    build:
+      context: .  # use docker file from the current location (root of the project)
+    restart: always  # if app crashes, restart it automatically
+    volumes:  # volume used to serve static data through nginx proxy
+      - static-data:/vol/web
+    environment:  # set configuration of our running service
+      - DB_HOST=db
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
+      - SECRET_KEY=${DJANGO_SECRET_KEY}
+      - ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS}
+    depends_on:
+      - db  # set a dependency so that db starts 1st
+
+  db:  # add a database
+    image: postgres:13-alpine
+    restart: always
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    environment:  # the values should match the ones in app service
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASS}
+
+  proxy:
+    build:
+      context: ./proxy  # build this image from the /proxy dir
+    restart: always
+    depends_on:
+      - app  # app services run before the proxy is started
+    ports:
+      - 80:8000  # map port 80 (local machine/server) to port 8000 (on the running host, so itside a container)
+    volumes:
+      - static-data:/vol/static
+
+volumes:
+  postgres-data:  # matches volume defined in db service volume
+  static-data:  # matches proxy volume
+                # Note: this is a shared volume, so anything that app writes to this volume
+                # will be readable by the proxy. This is how the proxy can serve
+                # the static/media files that are saved as part of our running app.
