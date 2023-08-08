@@ -31,7 +31,7 @@ services:
       - DB_NAME=devdb
       - DB_USER=devuser
       - DB_PASS=changeme
-      # - DEBUG=1
+      - DEBUG=1  # set debug mode for development on local machine
     depends_on: # tell docker-compose that app service depends on db (db starts 1st, then the app)
       - db
 

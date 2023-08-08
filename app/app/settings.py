@@ -21,13 +21,26 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-m$3mtx*$3x24@ty#dd7*s2dmc5n_5eehe-#_%=%&^j!pxq1a=@'
+# retrieves SECRET_KEY from config env variables and set it as SECRET_KEY in settings.py file
+# if SECRET_KEY is not set, it will set it to changeme for local development
+SECRET_KEY = os.environ.get('SECRET_KEY', 'changeme')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# set DEBUG to either True (1) or False (0)
+DEBUG = bool(int(os.envoron.get('DEBUG', 0)))
 
+
+# django app is only accessible via specific hosts
 ALLOWED_HOSTS = []
-
+# set actual host names that app is accessible to
+ALLOWED_HOSTS.extend(
+    filter(
+        # filter out None values, so list stays [] if nothing is provided
+        None,
+        # split up the allowed hosts values and add to ALLOWED_HOSTS list
+        os.environ.get('ALLOWED_HOSTS', '').split(','),
+    )
+)
 
 # Application definition
 
