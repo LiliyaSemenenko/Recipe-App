@@ -27,7 +27,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'changeme')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # set DEBUG to either True (1) or False (0)
-DEBUG = bool(int(os.envoron.get('DEBUG', 0)))
+DEBUG = bool(int(os.environ.get('DEBUG', 0)))
 
 
 # django app is only accessible via specific hosts
