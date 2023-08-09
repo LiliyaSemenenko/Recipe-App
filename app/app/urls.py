@@ -24,9 +24,12 @@ from django.urls import path, include
 from django.conf.urls.static import static  # import static url
 from django.conf import settings  # to retrieve settings
 
+from core import views as core_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+
+    path('api/health-check/', core_views.health_check, name='health-check'),
 
     # api/schema/ url generates schema for our API and uses SpectacularAPIView
     # Schema is a yaml file that describes the API
