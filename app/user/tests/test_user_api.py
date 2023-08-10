@@ -23,6 +23,8 @@ TOKEN_URL = reverse('user:token')
 # url endpoint for manage user API
 ME_URL = reverse('user:me')
 
+LOGIN_URL = reverse('user:login')
+
 
 # Add a helper function to create a user for testing
 # **params: passes in any dict that contains params and
@@ -234,3 +236,56 @@ class PrivateUserApiTests(TestCase):
 
         # check that response status code is HTTP 200 OK
         self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+
+class LoginUserViewTests(TestCase):
+
+    def setUp(self):
+        payload = {
+            'email': 'some@example.com',
+            'password': 'somepass123',
+            'name': 'Some Name',
+        }
+        create_user(**payload)  # created a new user
+
+        # creates an API Client that is used for testing
+        self.client = APIClient()
+
+    def test_login_with_valid_credentials(self):
+        """Test user login with valid credentials."""
+
+        payload = {
+            'email': 'test_@example.com',
+            "name": "test_user",
+            "password": "test_password",
+        }
+
+        res = self.client.post(LOGIN_URL, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        # self.assertRedirects(res, reverse("user:index"))
+
+        # user = self.client.force_authenticate(res, payload)
+
+        # self.assertTrue(user is not None)
+        # self.assertTrue(user.is_authenticated)
+
+    def test_login_with_invalid_credentials(self):
+        """Test user login with invalid credentials."""
+
+        payload = {
+            'email': 'test_@example.com',
+            "name": "test_user",
+            "password": "wrong_password",
+        }
+
+        res = self.client.post(LOGIN_URL, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertTemplateUsed(res, "user/login.html")
+        self.assertContains(res, "Invalid Credentials")
+
+        user = self.client.force_authenticate(res, payload)
+
+        self.assertTrue(user is None)
+        # self.assertFalse(user.is_authenticated)

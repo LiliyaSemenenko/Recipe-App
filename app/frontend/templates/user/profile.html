@@ -1,0 +1,13 @@
+{% extends "user/layout.html" %}
+
+{% block body %}
+    <!-- taking access to the request and the user associated with that request and if they have a first_name, you can access their first name -->
+    <h1>Welcome, {{ request.user.name }}</h1> <!-- -->
+    <ul>
+        <li>Username: {{ request.user.name }}</li>
+        <li>Email: {{ request.user.email }}</li>
+    </ul>
+
+    <a href="{% url 'user:logout' %}">Log Out</a>
+
+{% endblock %}

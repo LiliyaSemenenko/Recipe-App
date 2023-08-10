@@ -1,0 +1,21 @@
+{% extends "user/layout.html" %}
+
+{% block body %}
+    <br>
+    {% if message %}
+        <div>{{ message }}</div>
+    {% endif %}
+    <br> <br>
+
+    <form action="{% url 'user:login' %}" method="post">
+        {% csrf_token %} <!-- security tocken -->
+        <input type="text", name="username", placeholder="Username">
+        <input type="password", name="password", placeholder="Password"> <!-- type="password" makes sure that dots are shown inted of characters -->
+        <input type="submit", value="Login">
+    </form>
+
+    <br></br>
+
+{% endblock %}
+
+<!-- Don't have a profile? Signup <a href="{% url 'usersignup' %}">HERE</a> -->
