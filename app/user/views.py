@@ -11,16 +11,11 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 
 from user.serializers import MyTokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework import generics, authentication, permissions
+from rest_framework import generics, permissions
 
 # UserSerializer: a serializer created in serializers.py
-from user.serializers import (
-    UserSerializer,
-    AuthTokenSerializer,
-)
+from user.serializers import UserSerializer
 from core.models import User
-from rest_framework.authtoken.views import ObtainAuthToken
-from rest_framework.settings import api_settings
 
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
@@ -33,6 +28,7 @@ from django.contrib.auth import (
 from django.contrib.auth.views import LoginView
 from user.serializers import UserSerializerWithToken
 from rest_framework.response import Response
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 
 # CreateAPIView: is part of geerics module
@@ -47,16 +43,6 @@ class CreateUserView(generics.CreateAPIView):
     serializer_class = UserSerializer
 
 
-# ObtainAuthToken: view provided by DRF
-class CreateTokenView(ObtainAuthToken):
-    """Create a new auth token for user."""
-
-    # customise serializer
-    serializer_class = AuthTokenSerializer
-    # enable browsable api used for DRF
-    render_classes = api_settings.DEFAULT_RENDERER_CLASSES
-
-
 # RetrieveUpdateAPIView: provides functionality for retrieving (http get)
 # and updating (http patch/put) objects in the db
 class ManageUserView(generics.RetrieveUpdateAPIView):
@@ -64,7 +50,9 @@ class ManageUserView(generics.RetrieveUpdateAPIView):
 
     # set UserSerializer (from app/user/serializers.py)
     serializer_class = UserSerializer
-    authentication_classes = [authentication.TokenAuthentication]
+
+    authentication_classes = (JWTAuthentication, )
+    # authentication_classes = [authentication.TokenAuthentication]
     # whe know who the user is and we want to know
     # what they can do in the system
     permission_classes = [permissions.IsAuthenticated]

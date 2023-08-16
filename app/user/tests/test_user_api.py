@@ -18,7 +18,7 @@ from rest_framework import status
 CREATE_USER_URL = reverse('user:create')
 
 # url endpoint for creating tokens in our user API
-TOKEN_URL = reverse('user:token')
+TOKEN_URL = reverse('user:token_obtain_pair')
 
 # url endpoint for manage user API
 ME_URL = reverse('user:me')
@@ -134,7 +134,7 @@ class PublicUserApiTests(TestCase):
         res = self.client.post(TOKEN_URL, payload)
 
         # check that response includes a token
-        self.assertIn('token', res.data)
+        self.assertIn('refresh', res.data)
         # check that response status code is HTTP 200 OK
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
@@ -147,9 +147,9 @@ class PublicUserApiTests(TestCase):
         res = self.client.post(TOKEN_URL, payload)
 
         # check that token is not in db bcs it has wrong credentials
-        self.assertNotIn('token', res.data)
+        self.assertNotIn('refresh', res.data)
         # check that request is bad bcs login is supposed to be unsuccessful
-        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_create_token_blank_password(self):
         """Test posting a blank password returns an error."""

@@ -34,7 +34,7 @@ class UserSerializer(serializers.ModelSerializer):
         model = get_user_model()
         # fields that users can set themselves through the API
         # fields in the model that's created
-        fields = ['email', 'password', 'name']  # , 'is_staff'
+        fields = ['email', 'password', 'name']  # 'is_staff', 'is_active'
         # dict providing extra metadata to the fields
         # password: write_only: True: users can only write passwords
         # but NOT read the password.
