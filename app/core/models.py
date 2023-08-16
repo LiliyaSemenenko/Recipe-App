@@ -29,6 +29,8 @@ def recipe_image_file_path(instance, filename):
     return os.path.join('uploads', 'recipe', filename)
 
 
+# https://docs.djangoproject.com/en/3.2/topics/auth/customizing
+# /#writing-a-manager-for-a-custom-user-model
 # define UserManage based of BaseUserManager class provided by Django
 class UserManager(BaseUserManager):
     """Manager for users."""
@@ -72,6 +74,7 @@ class UserManager(BaseUserManager):
         return user
 
 
+# https://docs.djangoproject.com/en/3.2/topics/auth/customizing/#auth-custom-user
 # AbstractBaseUser: contains functionality for user auth system
 # PermissionsMixin:contains functionality for permissions and fields
 class User(AbstractBaseUser, PermissionsMixin):
@@ -87,7 +90,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     # assign UserMnager to this custom user class
     objects = UserManager()
 
-    # replace username field witha custom email field
+    # replace username field with a custom email field
     USERNAME_FIELD = 'email'
 
 

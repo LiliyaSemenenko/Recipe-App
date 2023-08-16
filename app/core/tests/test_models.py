@@ -9,9 +9,13 @@ Tests for models.
 """
 # patch: to replace behavior for testing purposes
 from unittest.mock import patch
+
 # provides assertion methods like assertEqual, assertTrue, assertRaises
 from django.test import TestCase
-# Helps to get reference to you custom user model.
+
+# Helps to get reference to your custom user model.
+# https://docs.djangoproject.com/en/3.2/topics/
+# auth/customizing/#django.contrib.auth.get_user_model
 # Goes to UserManager. Helper function to get the dafault user model,
 # which will then be automatically updated if you make changes to it
 from django.contrib.auth import get_user_model  # only for user model
@@ -38,7 +42,7 @@ class ModelTests(TestCase):
         password = 'testpass123'
 
         # get_user_model: get the user model
-        # objects: reference to the manager that we create
+        # objects: reference to the UserManager that we created in modelspy
         # create_user: method, passing email and password
         user = get_user_model().objects.create_user(
             email=email,
