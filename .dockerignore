@@ -14,5 +14,10 @@ app/*/*/*/__pycache__/
 .venv/
 venv/
 
+# Notes
 Notes.txt
 UserNotes.txt
+
+# NodeJS
+node_modules
+npm-debug.log

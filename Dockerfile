@@ -6,22 +6,28 @@
 # chown [OPTION]... [OWNER][:[GROUP]] FILE...: changes the user and/or group ownership of each given file.
 # chmod [OPTION]... MODE[,MODE]... FILE...: sets the permissions of files or directories.
 
+
 FROM python:3.9-alpine3.18
 LABEL maintainer="liliyasemenenko"
 
 ENV PYTHONUNBUFFERED 1
+
+# Install Node.js and npm
+RUN apk add --update --no-cache nodejs npm
 
 COPY ./requirements.txt /tmp/requirements.txt
 COPY ./requirements.dev.txt /tmp/requirements.dev.txt
 # creating a dir scripts used for creating helper scripts run by docker app
 COPY ./scripts /scripts
 COPY ./app /app
+COPY ./frontend/package*.json ./
 WORKDIR /app
 # port
 EXPOSE 8000
 
 # default value for Development mode is false
 ARG DEV=false
+
 RUN python -m venv /py && \
     /py/bin/pip install --upgrade pip && \
 #
@@ -67,4 +73,4 @@ USER django-user
 # name of the script that runs the app
 # default command that's run for docker containers that are spawned
 # from our image that's built from this Docker file.
-CMD ["run.sh"]
+CMD ["run.sh", "node", "server.js"]
