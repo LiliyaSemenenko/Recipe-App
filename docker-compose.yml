@@ -10,9 +10,12 @@ version: "3.9" # version of the docker-compose synttax
 
 services:
 
+  # TO BUILD: docker build -t app-dev -f Dockerfile .
   app: # name of the app service
+    container_name: app-dev
     build: # build a docker file inside a current dir
       context: . # root dir that currently running from
+      dockerfile: Dockerfile  # Use the Dockerfile for the backend
       args:
         - DEV=true # build argument DEV and save it to true
     ports:
@@ -46,14 +49,17 @@ services:
       - POSTGRES_USER=devuser
       - POSTGRES_PASSWORD=changeme
 
+  # TO BUILD: docker build -t frontend-dev -f frontend/Dockerfile.frontend .
   frontend:
     container_name: frontend-dev
     build:
-      context: .  # ./frontend Path to your React frontend code
+      context: .  # Path to your React frontend code
+      dockerfile: frontend/Dockerfile.frontend
     ports:
       - 3000:3000
     volumes:
       - ./frontend:/app  # Path to your React frontend code
+      - './node_modules:/app/node_modules'  # Share node_modules directory
     command: ["npm", "start"]
 
 volumes:

@@ -1,4 +1,4 @@
-# In the terminal: docker build .
+# TO BUILD: docker build -t app-dev -f Dockerfile .
 
 # Commnads:
 # apk [options] command: (Alpine Package Keeper) package of Alpine Linux. It handles all the package management operations including searching, installing, upgrading, listing, and removing software packages
@@ -11,16 +11,17 @@ FROM python:3.9-alpine3.18
 LABEL maintainer="liliyasemenenko"
 
 ENV PYTHONUNBUFFERED 1
+ENV PATH="/usr/local/bin:$PATH"
 
 # Install Node.js and npm
-RUN apk add --update --no-cache nodejs npm
+# RUN apk add --update --no-cache nodejs npm
 
 COPY ./requirements.txt /tmp/requirements.txt
 COPY ./requirements.dev.txt /tmp/requirements.dev.txt
 # creating a dir scripts used for creating helper scripts run by docker app
 COPY ./scripts /scripts
 COPY ./app /app
-COPY ./frontend/package*.json ./
+# COPY ./frontend/package*.json ./
 WORKDIR /app
 # port
 EXPOSE 8000
@@ -73,4 +74,5 @@ USER django-user
 # name of the script that runs the app
 # default command that's run for docker containers that are spawned
 # from our image that's built from this Docker file.
-CMD ["run.sh", "node", "server.js"]
+# , "node", "server.js"
+CMD ["run.sh"]

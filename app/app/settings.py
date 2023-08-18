@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     'user',
     'recipe',
     'rest_framework_simplejwt.token_blacklist',
+    'corsheaders',  # CORS (Cross-Origin Resource Sharing)
 ]
 
 MIDDLEWARE = [
@@ -72,6 +73,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'app.urls'
@@ -79,7 +81,8 @@ ROOT_URLCONF = 'app.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'frontend/templates/')],
+        # 'DIRS': [os.path.join(BASE_DIR, 'frontend/templates/')],
+        'DIRS': ['./frontend/templates/'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -215,3 +218,6 @@ SIMPLE_JWT = {
 SPECTACULAR_SETTINGS = {
     'COMPONENT_SPLIT_REQUEST': True,
 }
+
+# CHANGE FOR PRODUCTION to a list of CORS_ALLOWED_ORIGINS
+CORS_ORIGIN_ALLOW_ALL = True

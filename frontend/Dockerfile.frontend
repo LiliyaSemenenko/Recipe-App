@@ -1,0 +1,27 @@
+# TO BUILD: docker build -t frontend-dev -f frontend/Dockerfile.frontend .
+
+
+# pull official base image
+# .3.0-alpine
+FROM node:18.3.0-alpine
+LABEL maintainer="liliyasemenenko"
+
+# set working directory
+WORKDIR /frontend
+
+# add `/app/node_modules/.bin` to $PATH
+ENV PATH /frontend/node_modules/.bin:$PATH
+# ENV NODE_ENV development
+
+# install app dependencies
+COPY ./frontend/package*.json ./
+RUN npm install --silent
+RUN npm install react-scripts@3.4.1 -g --silent
+
+COPY ./frontend /frontend
+
+# Expose port
+EXPOSE 3000
+
+# start app
+CMD ["npm", "start"]
