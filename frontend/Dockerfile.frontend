@@ -3,25 +3,107 @@
 
 # pull official base image
 # .3.0-alpine
-FROM node:18.3.0-alpine
-LABEL maintainer="liliyasemenenko"
 
-# set working directory
+# FROM node:18.3.0-alpine
+# LABEL maintainer="liliyasemenenko"
+
+# # set working directory
+# WORKDIR /frontend
+
+# # add `/app/node_modules/.bin` to $PATH
+# ENV PATH /frontend/node_modules/.bin:$PATH
+# # ENV NODE_ENV development
+
+# # install app dependencies
+# COPY ./frontend/package*.json ./
+# COPY ./frontend ./
+# COPY . .
+
+# RUN npm install
+# RUN npm install react-scripts@5.0.1 -g
+
+# # Expose port
+# EXPOSE 3000
+
+# # start app
+# CMD ["npm", "run", "start"]
+#####################################################################
+# #Here we will use node as the base image.
+# FROM node:18.3.0-alpine
+
+# #create a working directory inside the container.
+# WORKDIR /frontend
+
+# #Environment variables.
+# ENV PATH /frontend/node_modules/.bin:$PATH
+
+# #copy the files from the host to the container.
+# COPY ./frontend/package*.json ./
+# COPY . .
+
+# #install npm and react versions.
+# RUN npm install
+# RUN npm install react-scripts@4.0.3 -g --silent
+
+# EXPOSE 3000
+
+# #use nodemon to run the react application using npm.
+# CMD ["npm", "start"]
+#####################################################################
+
+
+#Here we will use node as the base image.
+FROM node:18.3.0-alpine
+#create a working directory inside the container.
 WORKDIR /frontend
 
-# add `/app/node_modules/.bin` to $PATH
+#Environment variables.
 ENV PATH /frontend/node_modules/.bin:$PATH
-# ENV NODE_ENV development
 
-# install app dependencies
+#copy the files from the host to the container.
 COPY ./frontend/package*.json ./
-RUN npm install --silent
-RUN npm install react-scripts@3.4.1 -g --silent
 
-COPY ./frontend /frontend
+RUN npm install --silent && \
+    npm install react-scripts@5.0.1 -g --silent && \
+    npm install --global nodemon --silent && \
+    npm install eslint babel-eslint --save-dev && \
+    npm i -g concurrently && \
+    npm ci \
+    && npm cache clean --force \
+    && mv /frontend/node_modules /node_modules
 
-# Expose port
+# COPY ./frontend/package-lock.json ./
+COPY ./frontend ./
 EXPOSE 3000
 
-# start app
-CMD ["npm", "start"]
+#use nodemon to run the react application using npm.
+CMD ["forever", "start", "nodemon", "npm", "run", "dev"]
+
+##############################################
+# FROM node:18-slim
+
+# # add curl for healthcheck
+# RUN apt-get update \
+#     && apt-get install -y --no-install-recommends \
+#     curl \
+#     tini \
+#     && rm -rf /var/lib/apt/lists/*
+
+# WORKDIR /app
+
+# # have nodemon available for local dev use (file watching)
+# RUN npm install -g nodemon
+
+# COPY package*.json ./
+
+# RUN npm ci \
+#  && npm cache clean --force \
+#  && mv /app/node_modules /node_modules
+
+# COPY . .
+
+# ENV PORT 80
+# EXPOSE 80
+
+# ENTRYPOINT ["/usr/bin/tini", "--"]
+# CMD ["node", "server.js"]

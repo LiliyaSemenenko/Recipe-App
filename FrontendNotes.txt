@@ -1,0 +1,7 @@
+If changes made to dependencies in package.json:
+
+1. Stop your React app
+2. Delete package-lock.json file and the node_modules directory by doing
+    "rm -r package-lock.json node_modules"
+    in the app directory.
+3. Then do "npm install" in the app directory.

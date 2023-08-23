@@ -17,7 +17,13 @@ venv/
 # Notes
 Notes.txt
 UserNotes.txt
+FrontendNotes.txt
 
 # NodeJS
-node_modules
+node_modules/
 npm-debug.log
+# Artifacts that will be built during image creation.
+# This should contain all files created during `npm run build`.
+node_modules
+build
+.dockerignore
