@@ -59,13 +59,15 @@ WORKDIR /frontend
 
 #Environment variables.
 ENV PATH /frontend/node_modules/.bin:$PATH
+# ENV NPM_CONFIG_LOGLEVEL warn
 
 #copy the files from the host to the container.
 COPY ./frontend/package*.json ./
+COPY ./frontend/ecosystem.config.js ./
 
 RUN npm install --silent && \
     npm install react-scripts@5.0.1 -g --silent && \
-    npm install --global nodemon --silent && \
+    npm install pm2 -g && \
     npm install eslint babel-eslint --save-dev && \
     npm i -g concurrently && \
     npm ci \
@@ -76,8 +78,15 @@ RUN npm install --silent && \
 COPY ./frontend ./
 EXPOSE 3000
 
+# Show current folder structure in logs
+RUN ls -al -R
+
 #use nodemon to run the react application using npm.
-CMD ["forever", "start", "nodemon", "npm", "run", "dev"]
+CMD ["pm2", "reload", "all", \
+     "pm2-runtime", "npm", "run", "start", "ecosystem.config.js", "--watch"]
+# , "ecosystem.config.js"]
+# CMD ["nodemon", "npm", "run", "dev"]
+
 
 ##############################################
 # FROM node:18-slim
