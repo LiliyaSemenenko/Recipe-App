@@ -59,8 +59,8 @@ services:
     ports:
       - 3000:3000
     volumes:
-      - ./frontend:/app
-      - ./frontend/node_modules:/app/node_modules  # Share node_modules directory
+      - ./frontend:/frontend  # whatever is defined WORKDIR in Dockerfile
+      - ./frontend/node_modules:/frontend/node_modules:cached  # unrelated but doesn't hurt to update
     environment:
       - CHOKIDAR_USEPOLLING=true  # Enable file watching with polling
       - WATCHPACK_POLLING=true
@@ -69,21 +69,7 @@ services:
       - NODE_ENV=development
       #- DEBUG=*
       - PORT=3000
-    # stdin_open: true  # Allow interaction via stdin
-    # tty: true  # Allocate a TTY for an interactive shell
     command: ["npm", "run", "start"]
-
-
-  # client:
-  #   build: ./client
-  #   container_name: client_frontend
-  #   ports:
-  #     - '3000:3000'
-  #   volumes:
-  #     - ./client:/app
-  #     - ./app/node_modules
-  #   stdin_open: true
-  #   tty: true
 
   # frontend:
   #   image: phonebook-frontend-development
@@ -95,28 +81,6 @@ services:
   #   environment:
   #     # - WDS_SOCKET_PORT=0 # https://github.com/facebook/create-react-app/issues/11779
   #     - CHOKIDAR_USEPOLLING=true
-
-
-  # frontend:
-  #   tty: true
-  #   image: frontend-dev
-  #   build:
-  #     context: ./
-  #     dockerfile: ./frontend/Dockerfile.frontend
-  #   ports:
-  #     - ${WEB_APP_EXTERNAL_PORT}:3000
-  #   volumes:
-  #     - ${LOCAL_MOUNT_APP_SCRIPTS}:/opt/project/web_app
-  #     - /opt/project/web_app/node_modules
-  #   environment:
-  #     - WEB_APP_API_HOST=${WEB_APP_API_HOST}
-  #   command:
-  #     - bash
-  #     - -c
-  #     - |
-  #       cd /opt/project/web_app;
-  #       WDS_SOCKET_HOST=${SERVER_HOST_ADDRESS} WDS_SOCKET_PORT=${WEB_APP_EXTERNAL_PORT} npm start --watch
-
 
 volumes:
   dev-db-data: # name of the volume

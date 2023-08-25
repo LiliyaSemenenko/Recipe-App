@@ -58,14 +58,13 @@ FROM node:18.3.0-alpine
 WORKDIR /frontend
 
 #Environment variables.
-ENV PATH /frontend/node_modules/.bin:$PATH
-# ENV NPM_CONFIG_LOGLEVEL warn
+# ENV PATH /frontend/node_modules/.bin:$PATH
 
 #copy the files from the host to the container.
 COPY ./frontend/package*.json ./
 COPY ./frontend/ecosystem.config.js ./
 
-RUN npm install --silent && \
+RUN npm install -g npm@9.6.7 --silent && \
     npm install react-scripts@5.0.1 -g --silent && \
     npm install pm2 -g && \
     npm install eslint babel-eslint --save-dev && \
@@ -74,7 +73,9 @@ RUN npm install --silent && \
     && npm cache clean --force \
     && mv /frontend/node_modules /node_modules
 
-# COPY ./frontend/package-lock.json ./
+# ENV CI=true
+# ENV PORT=3000
+
 COPY ./frontend ./
 EXPOSE 3000
 
@@ -84,35 +85,8 @@ RUN ls -al -R
 #use nodemon to run the react application using npm.
 CMD ["pm2", "reload", "all", \
      "pm2-runtime", "npm", "run", "start", "ecosystem.config.js", "--watch"]
-# , "ecosystem.config.js"]
+
+
+
+# SHELL ["/bin/bash", "-c"]# , "ecosystem.config.js"]
 # CMD ["nodemon", "npm", "run", "dev"]
-
-
-##############################################
-# FROM node:18-slim
-
-# # add curl for healthcheck
-# RUN apt-get update \
-#     && apt-get install -y --no-install-recommends \
-#     curl \
-#     tini \
-#     && rm -rf /var/lib/apt/lists/*
-
-# WORKDIR /app
-
-# # have nodemon available for local dev use (file watching)
-# RUN npm install -g nodemon
-
-# COPY package*.json ./
-
-# RUN npm ci \
-#  && npm cache clean --force \
-#  && mv /app/node_modules /node_modules
-
-# COPY . .
-
-# ENV PORT 80
-# EXPOSE 80
-
-# ENTRYPOINT ["/usr/bin/tini", "--"]
-# CMD ["node", "server.js"]

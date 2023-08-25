@@ -19,10 +19,9 @@
   },
   "scripts": {
     "lint": "npx eslint --fix --ext .js,.jsx .",
-    "server": "pm2 start src/App.js --watch npm -- start",
     "react": "export SET NODE_OPTIONS=--openssl-legacy-provider && CHOKIDAR_USEPOLLING=true react-scripts start",
-    "start": "concurrently \"npm run lint\" \"npm run react\" \"npm run server \" ",
-    "build": "export SET NODE_OPTIONS=--openssl-legacy-provider && react-scripts build",
+    "server": "pm2 start src/App.js --watch npm -- start",
+    "start": "concurrently \"npm run lint\" \"npm run react\" \"npm run server\" ",
     "test": "export SET NODE_OPTIONS=--openssl-legacy-provider && react-scripts test",
     "eject": "export SET NODE_OPTIONS=--openssl-legacy-provider && react-scripts eject"
   },
