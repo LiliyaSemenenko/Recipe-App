@@ -68,8 +68,7 @@ RUN npm install -g npm@9.6.7 --silent && \
     npm install react-scripts@5.0.1 -g --silent && \
     npm install pm2 -g && \
     npm install eslint babel-eslint --save-dev && \
-    npm i -g concurrently && \
-    npm ci \
+    npm i -g concurrently \
     && npm cache clean --force \
     && mv /frontend/node_modules /node_modules
 
@@ -82,11 +81,9 @@ EXPOSE 3000
 # Show current folder structure in logs
 RUN ls -al -R
 
-#use nodemon to run the react application using npm.
 CMD ["pm2", "reload", "all", \
-     "pm2-runtime", "npm", "run", "start", "ecosystem.config.js", "--watch"]
-
-
+     "pm2-runtime", "ecosystem.config.js", \
+     "npm", "start", "--watch"]
 
 # SHELL ["/bin/bash", "-c"]# , "ecosystem.config.js"]
-# CMD ["nodemon", "npm", "run", "dev"]
+# For production: RUN npm ci \ (clean install)

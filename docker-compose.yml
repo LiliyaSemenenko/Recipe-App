@@ -60,7 +60,7 @@ services:
       - 3000:3000
     volumes:
       - ./frontend:/frontend  # whatever is defined WORKDIR in Dockerfile
-      - ./frontend/node_modules:/frontend/node_modules:cached  # unrelated but doesn't hurt to update
+      # - ./frontend/node_modules:/frontend/node_modules:cached  # unrelated but doesn't hurt to update
     environment:
       - CHOKIDAR_USEPOLLING=true  # Enable file watching with polling
       - WATCHPACK_POLLING=true

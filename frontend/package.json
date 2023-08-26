@@ -19,11 +19,12 @@
   },
   "scripts": {
     "lint": "npx eslint --fix --ext .js,.jsx .",
-    "react": "export SET NODE_OPTIONS=--openssl-legacy-provider && CHOKIDAR_USEPOLLING=true react-scripts start",
+    "react": "export SET NODE_OPTIONS=--openssl-legacy-provider && react-scripts start",
     "server": "pm2 start src/App.js --watch npm -- start",
     "start": "concurrently \"npm run lint\" \"npm run react\" \"npm run server\" ",
-    "test": "export SET NODE_OPTIONS=--openssl-legacy-provider && react-scripts test",
-    "eject": "export SET NODE_OPTIONS=--openssl-legacy-provider && react-scripts eject"
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
   },
   "eslintConfig": {
     "extends": [

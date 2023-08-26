@@ -21,7 +21,6 @@ COPY ./requirements.dev.txt /tmp/requirements.dev.txt
 # creating a dir scripts used for creating helper scripts run by docker app
 COPY ./scripts /scripts
 COPY ./app /app
-# COPY ./frontend/package*.json ./
 WORKDIR /app
 # port
 EXPOSE 8000
