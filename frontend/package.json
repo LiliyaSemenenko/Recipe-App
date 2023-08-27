@@ -7,10 +7,16 @@
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "react": "^18.2.0",
+    "react-bootstrap": "2.8.0",
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
     "web-vitals": "^2.1.4",
-    "pm2": "5.3.0"
+    "react-router-dom": "6.15.0",
+    "react-router-bootstrap": "0.26.2",
+    "react-redux": "8.1.2",
+    "redux": "4.2.1",
+    "@redux-devtools/extension": "3.2.5",
+    "redux-thunk": "2.4.2"
   },
   "devDependencies": {
     "concurrently": "8.2.0",
@@ -20,8 +26,9 @@
   "scripts": {
     "lint": "npx eslint --fix --ext .js,.jsx .",
     "react": "export SET NODE_OPTIONS=--openssl-legacy-provider && react-scripts start",
+    "react_dev": "react-scripts start",
     "server": "pm2 start src/App.js --watch npm -- start",
-    "start": "concurrently \"npm run lint\" \"npm run react\" \"npm run server\" ",
+    "start": "concurrently \"npm run lint\" \"npm run react_dev\" \"npm run server\" ",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
