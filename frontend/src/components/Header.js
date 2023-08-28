@@ -7,7 +7,6 @@ import { LinkContainer } from 'react-router-bootstrap'
 
 
 function Header() {
-
     return (
         <div>
             <header>
@@ -24,26 +23,48 @@ function Header() {
 
                             <Nav className="ml-auto">
 
-                                <LinkContainer to='/recipes'>
-                                    <NavDropdown title="Recipes" id="RecipesScrollingDropdown">
-                                        <LinkContainer to='/recipes/breakfast'>
-                                            <NavDropdown.Item>Breakfast</NavDropdown.Item>
-                                        </LinkContainer>
-                                        <LinkContainer to='/recipes/lunch'>
-                                            <NavDropdown.Item>Lunch</NavDropdown.Item>
-                                        </LinkContainer>
-                                        <LinkContainer to='/recipes/dinner'>
-                                            <NavDropdown.Item>Dinner</NavDropdown.Item>
-                                        </LinkContainer>
-                                        <LinkContainer to='/recipes/drinks'>
-                                            <NavDropdown.Item>Drinks</NavDropdown.Item>
-                                        </LinkContainer>
-                                        <LinkContainer to='/recipes/desserts'>
-                                            <NavDropdown.Item>Desserts</NavDropdown.Item>
-                                        </LinkContainer>
-                                    </NavDropdown>
-                                </LinkContainer>
+                                <NavDropdown title="Recipes" id="RecipesScrollingDropdown">
+                                    <LinkContainer to='/recipes/breakfast'>
+                                        <NavDropdown.Item>Breakfast</NavDropdown.Item>
+                                    </LinkContainer>
+                                    <LinkContainer to='/recipes/lunch'>
+                                        <NavDropdown.Item>Lunch</NavDropdown.Item>
+                                    </LinkContainer>
+                                    <LinkContainer to='/recipes/dinner'>
+                                        <NavDropdown.Item>Dinner</NavDropdown.Item>
+                                    </LinkContainer>
+                                    <LinkContainer to='/recipes/drinks'>
+                                        <NavDropdown.Item>Drinks</NavDropdown.Item>
+                                    </LinkContainer>
+                                    <LinkContainer to='/recipes/desserts'>
+                                        <NavDropdown.Item>Desserts</NavDropdown.Item>
+                                    </LinkContainer>
+                                </NavDropdown>
 
+                                <NavDropdown title="Ingredients" id="IngredientsScrollingDropdown">
+                                    <LinkContainer to='/ingredients/meat'>
+                                        <NavDropdown.Item>Meat</NavDropdown.Item>
+                                    </LinkContainer>
+                                    <LinkContainer to='/ingredients/seafood'>
+                                        <NavDropdown.Item>Seafood</NavDropdown.Item>
+                                    </LinkContainer>
+                                    <LinkContainer to='/ingredients/vegetarian-proteins'>
+                                        <NavDropdown.Item>Vegetarian Proteins</NavDropdown.Item>
+                                    </LinkContainer>
+                                    <LinkContainer to='/ingredients/sides'>
+                                        <NavDropdown.Item>Sides</NavDropdown.Item>
+                                    </LinkContainer>
+                                    <LinkContainer to='/ingredients/fruits-and-vegetables'>
+                                        <NavDropdown.Item>Fruits and Vegetables</NavDropdown.Item>
+                                    </LinkContainer>
+                                    <LinkContainer to='/ingredients/dairy'>
+                                        <NavDropdown.Item>Dairy</NavDropdown.Item>
+                                    </LinkContainer>
+                                </NavDropdown>
+
+                                <LinkContainer to='/trends'>
+                                        <Nav.Link>Trends</Nav.Link>
+                                </LinkContainer>
                             </Nav>
 
                             <Nav className="ms-auto">
