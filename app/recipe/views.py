@@ -23,7 +23,7 @@ from core.models import (
     Ingredient,
 )
 from recipe import serializers  # imports recipe serializer
-
+from rest_framework import permissions
 
 # add documentation changes
 # extend the schema for the list endpoint (the one we add filters to)
@@ -59,9 +59,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.RecipeDetailSerializer
     # represents objects available for this viewset through the Recipe model
     queryset = Recipe.objects.all()
-    authentication_classes = [TokenAuthentication]
+    authentication_classes = [permissions.AllowAny]  # [TokenAuthentication]
     # you need to be authenticated to make a request to API
-    permission_classes = [IsAuthenticated]
+    permission_classes = []  # [IsAuthenticated]
 
     def _params_to_ints(self, qs):
         """Convert a list of strings to integers."""
@@ -71,6 +71,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     # override get query set method provided by model viewset
     # this ensures the recepies are filtered down to authenticated user
+    @action(methods=['GET'], detail=False, url_path='list_recipes')
     def get_queryset(self):
         """Retrieve recipes for authenticated user."""
 
