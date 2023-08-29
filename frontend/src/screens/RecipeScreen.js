@@ -1,18 +1,27 @@
 import React, { useState, useEffect } from 'react'
+import axios from 'axios'
 // import { useDispatch, useSelector } from 'react-redux'
 import { Link, useParams  } from 'react-router-dom'
 import { Row, Col, Image, ListGroup, Button, Card, Form } from 'react-bootstrap'
 import Rating from '../components/Rating'
-import recipes from '../recipes'
+// import recipes from '../recipes'
 // import Loader from '../components/Loader'
 // import Message from '../components/Message'
 // import { listProductDetails, createProductReview } from '../actions/recipeActions'
 // import { PRODUCT_CREATE_REVIEW_RESET } from '../constants/recipeConstants'
 
 function RecipeScreen({ match }) {
-    // const recipe = recipes.find((p) => p._id == match.params.id)
+
     const { id } = useParams();
-    const recipe = recipes.find((p) => p._id === id);
+    const [recipe, setRecipe] = useState([])
+
+    useEffect(() => {
+        async function fetchRecipes(){
+            const { data } = await axios.get(`/api/recipe/recipes/${id}`)
+            setRecipe(data)
+        }
+        fetchRecipes()
+        }, [id])
 
     return(
         <div>
@@ -21,13 +30,13 @@ function RecipeScreen({ match }) {
 
             <Row style={{ marginTop: '20px' }} className="justify-content-center">
                 <Col md={5}>
-                    <Image src={recipe.image} alt={recipe.name} fluid />
+                    <Image src={recipe.image} alt={recipe.title} fluid />
                 </Col>
 
                 <Col md={3}>
                     <ListGroup variant="flush">
                         <ListGroup.Item>
-                            <h3>{recipe.name}</h3>
+                            <h3>{recipe.title}</h3>
                         </ListGroup.Item>
 
                         <ListGroup.Item>
@@ -35,7 +44,10 @@ function RecipeScreen({ match }) {
                         </ListGroup.Item>
 
                         <ListGroup.Item>
-                            Price: ${recipe.price}
+                            Price: <strong>  ${recipe.price} </strong>
+                        </ListGroup.Item>
+                        <ListGroup.Item>
+                            Time: <strong> {recipe.time_minutes} min. </strong>
                         </ListGroup.Item>
 
                         <ListGroup.Item>
@@ -45,51 +57,32 @@ function RecipeScreen({ match }) {
 
                     <br></br>
 
+                {/* Ingredients Section */}
+                {/* <Row style={{ marginTop: '20px' }}> */}
+                        <Col md={10}>
+                            <Card>
+                                <Card.Body>
+                                    <Card.Title>Ingredients</Card.Title>
+                                    <ListGroup variant="flush">
+                                        {recipe.ingredients && recipe.ingredients.length > 0 ? (
+                                            recipe.ingredients.map((ingredient) => (
+                                                <ListGroup.Item key={ingredient.id}>
+                                                    {ingredient.name}
+                                                </ListGroup.Item>
+                                            ))
+                                        ) : (
+                                            <ListGroup.Item>No ingredients listed for this recipe.</ListGroup.Item>
+                                        )}
+                                    </ListGroup>
+                                </Card.Body>
+                            </Card>
+                        </Col>
+                    {/* </Row> */}
+                    <br></br>
                     <Col md={10}>
-                        <Card>
-                            <ListGroup variant='flush'>
-                                <ListGroup.Item>
-                                    <Row>
-                                        <Col>Price:</Col>
-                                        <Col>
-                                            <strong>${recipe.price}</strong>
-                                        </Col>
-                                    </Row>
-                                </ListGroup.Item>
-                                <ListGroup.Item>
-                                    <Row>
-                                        <Col>Status:</Col>
-                                        <Col>
-                                            {recipe.countInStock > 0 ? 'In Stock' : 'Out of Stock'}
-                                        </Col>
-                                    </Row>
-                                </ListGroup.Item>
+                            <ListGroup>
 
-                                {recipe.countInStock > 0 && (
-                                    <ListGroup.Item>
-                                        <Row>
-                                            <Col>Qty</Col>
-                                            <Col xs='auto' className='my-1'>
-                                                <Form.Control
-                                                    as="select"
-                                                    // value={qty}
-                                                    // onChange={(e) => setQty(e.target.value)}
-                                                >
-                                                    {
-
-                                                        [...Array(recipe.countInStock).keys()].map((x) => (
-                                                            <option key={x + 1} value={x + 1}>
-                                                                {x + 1}
-                                                            </option>
-                                                        ))
-                                                    }
-
-                                                </Form.Control>
-                                            </Col>
-                                        </Row>
-                                    </ListGroup.Item>
-                                )}
-
+                                </ListGroup>
 
                                 <ListGroup.Item>
                                     <Button
@@ -97,17 +90,16 @@ function RecipeScreen({ match }) {
                                         className='btn-block'
                                         disabled={recipe.countInStock == 0}
                                         type='button'>
-                                        Add to Cart
+                                        Save
                                     </Button>
                                 </ListGroup.Item>
-                            </ListGroup>
-                        </Card>
+
                     </Col>
                 </Col>
             </Row>
 
         </div>
-    )
+    );
 }
 
 export default RecipeScreen

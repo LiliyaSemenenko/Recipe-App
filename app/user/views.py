@@ -80,74 +80,74 @@ def index(request):
     return render(request, "user/profile.html")
 
 
-class LoginUserView(LoginView):
+# class LoginUserView(LoginView):
 
-    def login_view(request):
-        if request.method == "POST":
-            # Accessing username and password from form data
-            username = request.POST["name"]
-            password = request.POST["password"]
+#     def login_view(request):
+#         if request.method == "POST":
+#             # Accessing username and password from form data
+#             username = request.POST["name"]
+#             password = request.POST["password"]
 
-            # https://docs.djangoproject.com/en/3.2/topics/auth/customizing
-            # /#writing-an-authentication-backend
-            # Check if name and pass are correct, returning User object if so
-            user = authenticate(request, username=username, password=password)
+#             # https://docs.djangoproject.com/en/3.2/topics/auth/customizing
+#             # /#writing-an-authentication-backend
+#             # Check if name and pass are correct, returning User object if so
+#             user = authenticate(request, username=username, password=password)
 
-            # If user object is returned, log in and route to index page:
-            if user is not None:
-                login(request, user)
-                # back to original route
-                return HttpResponseRedirect(reverse("user:index"))
-            # Otherwise, return login page again with new context
-            else:
-                # render user login page again
-                return render(request, "user/login.html", {
-                    # display this statement
-                    "message": "Invalid Credentials"
-                })
+#             # If user object is returned, log in and route to index page:
+#             if user is not None:
+#                 login(request, user)
+#                 # back to original route
+#                 return HttpResponseRedirect(reverse("user:index"))
+#             # Otherwise, return login page again with new context
+#             else:
+#                 # render user login page again
+#                 return render(request, "user/login.html", {
+#                     # display this statement
+#                     "message": "Invalid Credentials"
+#                 })
 
-        if request.GET.get('message'):
-            # Get the message from the query parameters
-            message = request.GET.get('message')
-            return render(request, 'user/login.html', {'message': message})
+#         if request.GET.get('message'):
+#             # Get the message from the query parameters
+#             message = request.GET.get('message')
+#             return render(request, 'user/login.html', {'message': message})
 
-        return render(request, "user/login.html")
+#         return render(request, "user/login.html")
 
 
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer = MyTokenObtainPairSerializer
 
 
-@api_view(['POST'])
-def registerUser(request):
-    data = request.data
-    try:
-        user = get_user_model().objects.create(
-            name=data['name'],
-            email=data['email'],
-            password=make_password(data['password'])
-        )
-        serializer = UserSerializerWithToken(user, many=False)
-        return Response(serializer.data)
-    except Exception:
-        message = {'detail': "User with this email already exists."}
-        return Response(message, status=status.HTTP_400_BAD_REQUEST)
+# @api_view(['POST'])
+# def registerUser(request):
+#     data = request.data
+#     try:
+#         user = get_user_model().objects.create(
+#             name=data['name'],
+#             email=data['email'],
+#             password=make_password(data['password'])
+#         )
+#         serializer = UserSerializerWithToken(user, many=False)
+#         return Response(serializer.data)
+#     except Exception:
+#         message = {'detail': "User with this email already exists."}
+#         return Response(message, status=status.HTTP_400_BAD_REQUEST)
 
 
-# get token before getting a user
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def getUserProfile(request):
-    user = request.user  # get logged in user
-    serializer = UserSerializer(user, many=False)
-    return Response(serializer.data)
+# # get token before getting a user
+# @api_view(['GET'])
+# @permission_classes([IsAuthenticated])
+# def getUserProfile(request):
+#     user = request.user  # get logged in user
+#     serializer = UserSerializer(user, many=False)
+#     return Response(serializer.data)
 
 
-@api_view(['GET'])
-# admin has to be authenticated so no IsAuthenticated
-@permission_classes([IsAdminUser])
-def getUsersList(request):
-    # get all the users
-    users = User.objects.all()
-    serializer = UserSerializer(users, many=True)
-    return Response(serializer.data)
+# @api_view(['GET'])
+# # admin has to be authenticated so no IsAuthenticated
+# @permission_classes([IsAdminUser])
+# def getUsersList(request):
+#     # get all the users
+#     users = User.objects.all()
+#     serializer = UserSerializer(users, many=True)
+#     return Response(serializer.data)

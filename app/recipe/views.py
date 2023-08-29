@@ -23,7 +23,9 @@ from core.models import (
     Ingredient,
 )
 from recipe import serializers  # imports recipe serializer
-from rest_framework import permissions
+from rest_framework.permissions import AllowAny
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from .recipes import recipes
 
 # add documentation changes
 # extend the schema for the list endpoint (the one we add filters to)
@@ -59,9 +61,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.RecipeDetailSerializer
     # represents objects available for this viewset through the Recipe model
     queryset = Recipe.objects.all()
-    authentication_classes = [permissions.AllowAny]  # [TokenAuthentication]
-    # you need to be authenticated to make a request to API
-    permission_classes = []  # [IsAuthenticated]
+    # authentication_classes = (JWTAuthentication, )
+    # # you need to be authenticated to make a request to API
+    # permission_classes = [IsAuthenticated]
 
     def _params_to_ints(self, qs):
         """Convert a list of strings to integers."""
@@ -71,7 +73,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     # override get query set method provided by model viewset
     # this ensures the recepies are filtered down to authenticated user
-    @action(methods=['GET'], detail=False, url_path='list_recipes')
+    # @action(methods=['GET'], detail=False, url_path='list_recipes')
     def get_queryset(self):
         """Retrieve recipes for authenticated user."""
 
@@ -98,9 +100,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
             ingredient_ids = self._params_to_ints(ingredients)
             queryset = queryset.filter(ingredients__id__in=ingredient_ids)
 
-        return queryset.filter(
-            user=self.request.user
-            ).order_by('-id').distinct()  # distinct: to avoid duplicates
+        # return queryset.filter(
+        #     user=self.request.user
+        #     ).order_by('-id').distinct()  # distinct: to avoid duplicates
+
+        return queryset.order_by('-id').distinct()  # distinct: to avoid duplicates
+
 
     def get_serializer_class(self):
         """Return the serializer class for request."""
@@ -179,8 +184,8 @@ class BaseRecipeAttrViewSet(mixins.DestroyModelMixin,  # for delete_tag to work
                             viewsets.GenericViewSet):
     """Base viewset for recipe attributes."""
 
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+    # authentication_classes = (JWTAuthentication, )
+    # permission_classes = [IsAuthenticated]
 
     # return only query objects for the auth user
     def get_queryset(self):
@@ -201,9 +206,11 @@ class BaseRecipeAttrViewSet(mixins.DestroyModelMixin,  # for delete_tag to work
         # order_by('-name'): ensures that order is consistent
         # as db may store it differently
         # Note: no self.queryset bcs self will not apply filters
-        return queryset.filter(
-            user=self.request.user
-            ).order_by('-name').distinct()
+        # return queryset.filter(
+        #     user=self.request.user
+        #     ).order_by('-name').distinct()
+
+        return queryset.order_by('-name').distinct()
 
 
 class TagViewSet(BaseRecipeAttrViewSet):

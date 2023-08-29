@@ -6,14 +6,14 @@ import { Link } from 'react-router-dom'
 function Recipe({ recipe }) {
     return (
         <Card className="my-3 p-3 rounded">
-            <Link to={`/recipe/${recipe._id}`}>
+            <Link to={`/recipe/${recipe.id}`}>
                 <Card.Img src={recipe.image} />
             </Link>
 
             <Card.Body>
-                <Link to={`/recipe/${recipe._id}`}>
+                <Link to={`/recipe/${recipe.id}`}>
                     <Card.Title as="h3">
-                        <strong>{recipe.name}</strong>
+                        <strong>{recipe.title}</strong>
                     </Card.Title>
                 </Link>
 
@@ -26,7 +26,7 @@ function Recipe({ recipe }) {
 
 
                 <Card.Text as="div">
-                    @{recipe.username}
+                    {/* @{recipe.username} */}
                 </Card.Text>
 
             </Card.Body>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Row, Col } from 'react-bootstrap'
-import recipes from '../recipes'
+import axios from 'axios'
 import Recipe from '../components/Recipe'
 // import Loader from '../components/Loader'
 // import Message from '../components/Message'
@@ -11,16 +11,24 @@ import Recipe from '../components/Recipe'
 
 
 function HomeScreen({ history }) {
+    // state recipes updates with setRecipes wot useState method given the original value []
+    // which will be updated
+    const [recipes, setRecipes] = useState([])
+
+
     // const dispatch = useDispatch()
     // const recipeList = useSelector(state => state.recipeList)
     // const { error, loading, recipes, page, pages } = recipeList
 
     // let keyword = history.location.search
 
-    // useEffect(() => {
-    //     dispatch(listRecipes(keyword))
-
-    // }, [dispatch, keyword])
+    useEffect(() => {
+        async function fetchRecipes(){
+            const { data } = await axios.get('/api/recipe/recipes/')
+            setRecipes(data)
+        }
+        fetchRecipes()
+        }, [])
 
     return (
         <div>
@@ -31,7 +39,7 @@ function HomeScreen({ history }) {
                 <div>
                     <Row>
                         {recipes.map(recipe => (
-                            <Col key={recipe._id} sm={12} md={6} lg={4} xl={3}>
+                            <Col key={recipe.id} sm={12} md={6} lg={4} xl={3}>
                                 <Recipe recipe={recipe} />
                             </Col>
                         ))}
