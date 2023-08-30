@@ -42,6 +42,10 @@ class UserSerializer(serializers.ModelSerializer):
         # (otherwise, fails validation)
         extra_kwargs = {'password': {'write_only': True, 'min_length': 5}}
 
+    def get_token(self, obj):
+        token = RefreshToken.for_user(obj)
+        return str(token.access_token)
+
     # create method: overrides the behavior of serializer when you
     # create new objects out of that serializer.
     # default behaviour: save the objects as they passed in
