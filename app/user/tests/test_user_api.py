@@ -23,7 +23,7 @@ TOKEN_URL = reverse('user:token_obtain_pair')
 # url endpoint for manage user API
 ME_URL = reverse('user:me')
 
-LOGIN_URL = reverse('user:login')
+# LOGIN_URL = reverse('user:login')
 
 
 # Add a helper function to create a user for testing
