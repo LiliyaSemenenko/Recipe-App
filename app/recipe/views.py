@@ -7,7 +7,6 @@ from drf_spectacular.utils import (
     OpenApiParameter,
     OpenApiTypes,
 )
-
 from rest_framework import (
     viewsets,
     mixins,
@@ -16,7 +15,7 @@ from rest_framework import (
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from core.models import (
     Recipe,
@@ -73,8 +72,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
             # Filter by user only when authenticated
             queryset = queryset.filter(user=self.request.user)
 
-        return queryset.order_by('-id').distinct()  # distinct: to avoid duplicates
-
+        # distinct: to avoid duplicates
+        return queryset.order_by('-id').distinct()
 
     def get_serializer_class(self):
         """Return the serializer class for request."""
@@ -88,7 +87,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         """Create a new recipe."""
         serializer.save(user=self.request.user)
-
 
     @action(methods=['POST'], detail=True, url_path='upload-image')
     def upload_image(self, request, pk=None):

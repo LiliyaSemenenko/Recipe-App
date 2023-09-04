@@ -24,6 +24,7 @@ from django.contrib.auth import get_user_model  # only for user model
 from decimal import Decimal
 
 from core import models
+from core.models import UserProfile
 
 
 # helper function for creating a test user
@@ -99,6 +100,27 @@ class ModelTests(TestCase):
         # is_staff: comes from User class in models.py
         self.assertTrue(user.is_staff)  # allows to login into Django Admin
 
+    def test_create_profile(self):
+        """Test creating a bio in user profcile successful."""
+
+        # create a user to assign to our recipe objects
+        user = get_user_model().objects.create_user(
+            'test@example.com',
+            'testpass123',
+        )
+
+        user_profile = UserProfile.objects.create(
+            user=user,
+            picture=None,  # Replace with an actual image file if needed
+            bio="Test bio",
+            dob="2022-01-01",
+            pronouns=UserProfile.SHE,
+            gender=UserProfile.FEMALE
+        )
+
+        self.assertEqual(user_profile.user, user)
+        self.assertEqual(str(user_profile), f'{user_profile.user.email} Profile')
+
     def test_create_recipe(self):
         """Test creating a recipe is successful."""
 
@@ -161,9 +183,10 @@ class ModelTests(TestCase):
         # recipe_image_file_path: generates path to the uploaded image
         # None: replaces the instance
         # example.jpg: original name of the uploaded
-        file_path = models.recipe_image_file_path(None, 'example.jpg')
+        file_path = models.image_file_path(None, 'example.jpg')
 
         # check that result of function keeps same extentition
         # uploads/recipe/{uuid}.jpg, replaces "example" with {uuid},
         # and stored in uploads/recipe/
-        self.assertEqual(file_path, f'uploads/recipe/{uuid}.jpg')
+        self.assertEqual(file_path, f'uploads/nonetype/{uuid}.jpg')
+

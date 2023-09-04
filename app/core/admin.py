@@ -10,13 +10,25 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 # (automatically translating the text)
 # _(section_to_translate)
 from django.utils.translation import gettext_lazy as _
-
-
 from core import models
+from core.models import UserProfile
+
+class ProfileInline(admin.StackedInline):
+    model = UserProfile
+    can_delete = False
+    verbose_name_plural = 'User Profiles'
+    fk_name = 'user'
 
 
 class UserAdmin(BaseUserAdmin):
     """Define the admin pages for users."""
+
+    inlines = (ProfileInline, )
+
+    def get_inline_instances(self, request, obj=None):
+        if not obj:
+            return list()
+        return super(UserAdmin, self).get_inline_instances(request, obj)
 
     ordering = ['id']  # order users by id
     list_display = ['email', 'name']  # list these items

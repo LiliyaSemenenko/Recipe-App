@@ -12,11 +12,12 @@ from django.contrib.auth.models import (
 )
 from django.conf import settings
 
-
 # instance: of the object that the image is being uploaded to
 # filename:name of original file that's being uploaded
-def recipe_image_file_path(instance, filename):
+def image_file_path(instance, filename):
     """Generate file path for new recipe image."""
+
+    model_class = instance.__class__.__name__
 
     # extract the extention of a filename
     ext = os.path.splitext(filename)[1]
@@ -26,7 +27,7 @@ def recipe_image_file_path(instance, filename):
     # Create a URL path for an image
     # os.path.join(): ensures that string created in format for
     # operating system that's running on
-    return os.path.join('uploads', 'recipe', filename)
+    return os.path.join('uploads', model_class.lower(), filename)
 
 
 # https://docs.djangoproject.com/en/3.2/topics/auth/customizing
@@ -94,6 +95,69 @@ class User(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'email'
 
 
+class UserProfile(models.Model):
+
+    # # RELATIONSHIP
+    # user = models.ForeignKey(
+    #     to = User,
+    #     on_delete = models.CASCADE,
+    #     related_name = "user_account"
+    # )
+
+    # # DATABASE FIELDS
+    # first_name = models.ForeignKey(User, to_field="firstname_field", verbose_name="First Name")
+    # last_name = models.ForeignKey(User, to_field="lastname_field", verbose_name="Last Name")
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+
+    SHE = 'SHE'
+    HE = 'HE'
+    THEY = 'THEY'
+    CUSTOM = 'CUSTOM'
+    NONE = 'NONE'
+
+    FEMALE = 'FEMALE'
+    MALE = 'MALE'
+
+    PRONOUNS = [
+        (SHE, "She/Her"),
+        (HE, "He/Him"),
+        (THEY, "They/Them"),
+        (CUSTOM, "Custom"),
+        (NONE, "Prefer not to say"),
+    ]
+    GENDER = [
+        (FEMALE, "Female"),
+        (MALE, "Male"),
+        (CUSTOM, "Custom"),
+        (NONE, "Prefer not to say"),
+    ]
+
+    picture = models.ImageField(null=True, upload_to=image_file_path)
+    bio = models.CharField(max_length=225)
+    # private info
+    dob = models.DateField()
+
+    pronouns = models.CharField(
+        max_length=20,
+        choices=PRONOUNS,
+        default=NONE,
+    )
+
+    # private info
+    gender = models.CharField(
+        max_length=20,
+        choices=GENDER,
+        default=NONE,
+    )
+
+    # once we create a new feed item automatically add the date time stamp that the item was created
+    created_on = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'{self.user.email} Profile' #show how we want it to be displayed
+
+
 class Recipe(models.Model):  # models.Model: Django base class
     """Recipe object."""
 
@@ -138,7 +202,7 @@ class Recipe(models.Model):  # models.Model: Django base class
     # Note: recipe_image_file_path is a reference to a func, not calling it
     # That's how you specify the path you want to upload files to
     # NOT REQUIRED
-    image = models.ImageField(null=True, upload_to=recipe_image_file_path)
+    image = models.ImageField(null=True, upload_to=image_file_path)
 
     # returns string representation of an object (title here)
     # If not sepcified, in Django Admin you'll see ID instead of a title

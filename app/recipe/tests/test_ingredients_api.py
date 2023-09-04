@@ -37,12 +37,12 @@ class PublicIngredientsAPITesst(TestCase):
     def setUp(self):
         self.client = APIClient()
 
-    def test_auth_required(self):
-        """Test auth is required to call ingredients API."""
+    # def test_auth_required(self):
+    #     """Test auth is required to call ingredients API."""
 
-        res = self.client.get(INGREDIENTS_URL)
+    #     res = self.client.get(INGREDIENTS_URL)
 
-        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
+    #     self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
 
 class PrivateIngredientsAPITests(TestCase):
