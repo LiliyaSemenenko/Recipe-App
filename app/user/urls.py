@@ -19,6 +19,7 @@ app_name = 'user'
 urlpatterns = [
     path('create/', views.CreateUserView.as_view(), name='create'),
     path('me/', views.ManageUserView.as_view(), name='me'),
+    path('profile/', views.ManageUserView.as_view(), name='profile'),
     path('', views.index, name='index'),
     # path('login/', views.LoginUserView.login_view, name='login'),
     # path('profile/', views.getUserProfile, name='profile'),

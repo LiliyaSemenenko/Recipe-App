@@ -18,6 +18,7 @@ class ProfileInline(admin.StackedInline):
     can_delete = False
     verbose_name_plural = 'User Profiles'
     fk_name = 'user'
+    # form = UserProfileForm
 
 
 class UserAdmin(BaseUserAdmin):
@@ -68,6 +69,7 @@ class UserAdmin(BaseUserAdmin):
     )
 
 
+admin.site.register(models.UserProfile)
 # register User model and assign custom UserAdmin class
 admin.site.register(models.User, UserAdmin)
 # register Recipe model (no custom Django admin class)

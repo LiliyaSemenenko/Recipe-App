@@ -1,6 +1,8 @@
 """
 Database models.
 """
+# Note: if models changed: docker-compose run --rm app sh -c "python manage.py makemigrations"
+
 import uuid  # to generate uuid
 import os  # for file path management functions
 
@@ -88,6 +90,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
 
+    # profile = models.OneToOneField('Profile', on_delete=models.CASCADE)  # NOT REQUIRED
+
     # assign UserMnager to this custom user class
     objects = UserManager()
 
@@ -101,14 +105,36 @@ class UserProfile(models.Model):
     # user = models.ForeignKey(
     #     to = User,
     #     on_delete = models.CASCADE,
-    #     related_name = "user_account"
+    #     # primary_key=True,
+    #     related_name='userprofile'
     # )
 
-    # # DATABASE FIELDS
-    # first_name = models.ForeignKey(User, to_field="firstname_field", verbose_name="First Name")
-    # last_name = models.ForeignKey(User, to_field="lastname_field", verbose_name="Last Name")
+    # user = models.ForeignKey(  # REQUIRED field
+    #     settings.AUTH_USER_MODEL,
+    #     # if related object (user) is deleted,
+    #     # recepies associated to him will also be deleted
+    #     on_delete=models.CASCADE,
+    # )
 
-    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True, related_name='userprofile')
+
+    # If you want to allow setting the name as well, you can define a setter method.
+    def name(self, value):
+        self.user.name = value
+        self.user.save()
+
+    # If you want to allow setting the name as well, you can define a setter method.
+    def email(self, value):
+        self.user.email = value
+        self.user.save()
+
+    # # DATABASE FIELDS
+    # name = models.ForeignKey(User, to_field="name", verbose_name="Name", on_delete = models.CASCADE,)
+    # email = models.ForeignKey(User, to_field="email", verbose_name="Email", on_delete = models.CASCADE,)
+
+    # user_item = User.objects.get()
+    # name = user_item.name
+    # email = user_item.email
 
     SHE = 'SHE'
     HE = 'HE'
@@ -133,8 +159,8 @@ class UserProfile(models.Model):
         (NONE, "Prefer not to say"),
     ]
 
-    picture = models.ImageField(null=True, upload_to=image_file_path)
-    bio = models.CharField(max_length=225)
+    picture = models.ImageField(null=True, blank=True, upload_to=image_file_path)
+    bio = models.CharField(max_length=225, blank=True)
     # private info
     dob = models.DateField()
 
@@ -151,11 +177,21 @@ class UserProfile(models.Model):
         default=NONE,
     )
 
+    custom_gender = models.CharField(
+        max_length=255,
+        blank=True,  # Allow it to be optional
+        null=True,   # Allow it to be null
+    )
+
     # once we create a new feed item automatically add the date time stamp that the item was created
     created_on = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f'{self.user.email} Profile' #show how we want it to be displayed
+        return self.user.email #show how we want it to be displayed
+
+    def save(self, *args, **kwargs):
+        # save the profile first
+        super().save(*args, **kwargs)
 
 
 class Recipe(models.Model):  # models.Model: Django base class

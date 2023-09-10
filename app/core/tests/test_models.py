@@ -119,7 +119,7 @@ class ModelTests(TestCase):
         )
 
         self.assertEqual(user_profile.user, user)
-        self.assertEqual(str(user_profile), f'{user_profile.user.email} Profile')
+        self.assertEqual(str(user_profile), user_profile.user.email)
 
     def test_create_recipe(self):
         """Test creating a recipe is successful."""

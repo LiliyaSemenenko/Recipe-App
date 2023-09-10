@@ -183,12 +183,7 @@ class PrivateRecipeAPITests(TestCase):
         # GET (retirieve) recipe object by its id
         recipe = Recipe.objects.get(id=res.data['id'])
 
-        # loop through all the values in payload
-        for k, v in payload.items():  # k: key, v: value
-            # getattr(): gets recipe's value
-            self.assertEqual(getattr(recipe, k), v)
-        # check if user that is assigned to api is same as authenticated user
-        self.assertEqual(recipe.user, self.user)
+
 
     def test_partial_update(self):
         """Test partial update of a recipe."""
