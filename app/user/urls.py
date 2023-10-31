@@ -18,8 +18,10 @@ app_name = 'user'
 # CREATE_USER_URL = reverse('user:create')
 urlpatterns = [
     path('create/', views.CreateUserView.as_view(), name='create'),
+    path('profile_create/', views.CreateUserProfileView.as_view(), name='create_profile'),
+    path('profile/', views.ManageUserProfileView.as_view(), name='profile'),
     path('me/', views.ManageUserView.as_view(), name='me'),
-    path('profile/', views.ManageUserView.as_view(), name='profile'),
+#     path('profile/', views.UserProfileRetrieveUpdate.as_view(), name='profile'),
     path('', views.index, name='index'),
     # path('login/', views.LoginUserView.login_view, name='login'),
     # path('profile/', views.getUserProfile, name='profile'),
@@ -30,5 +32,5 @@ urlpatterns = [
     path('token/refresh/', TokenRefreshView.as_view(),
          name='token_refresh'),
     path('login/', views.MyTokenObtainPairView.as_view(),
-         name='token_obtain_pair'),
+         name='token_obtain_pair'),  # create profile here
 ]

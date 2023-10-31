@@ -1,8 +1,6 @@
 """
 Database models.
 """
-# Note: if models changed: docker-compose run --rm app sh -c "python manage.py makemigrations"
-
 import uuid  # to generate uuid
 import os  # for file path management functions
 
@@ -13,8 +11,10 @@ from django.contrib.auth.models import (
     PermissionsMixin,
 )
 from django.conf import settings
+from django.db.models.signals import post_delete, post_save
+from datetime import date
 
-# instance: of the object that the image is being uploaded to
+#  instance: of the object that the image is being uploaded to
 # filename:name of original file that's being uploaded
 def image_file_path(instance, filename):
     """Generate file path for new recipe image."""
@@ -90,8 +90,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
 
-    # profile = models.OneToOneField('Profile', on_delete=models.CASCADE)  # NOT REQUIRED
-
     # assign UserMnager to this custom user class
     objects = UserManager()
 
@@ -101,40 +99,12 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 class UserProfile(models.Model):
 
-    # # RELATIONSHIP
-    # user = models.ForeignKey(
-    #     to = User,
-    #     on_delete = models.CASCADE,
-    #     # primary_key=True,
-    #     related_name='userprofile'
-    # )
-
-    # user = models.ForeignKey(  # REQUIRED field
-    #     settings.AUTH_USER_MODEL,
-    #     # if related object (user) is deleted,
-    #     # recepies associated to him will also be deleted
-    #     on_delete=models.CASCADE,
-    # )
-
-    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True, related_name='userprofile')
-
-    # If you want to allow setting the name as well, you can define a setter method.
-    def name(self, value):
-        self.user.name = value
-        self.user.save()
-
-    # If you want to allow setting the name as well, you can define a setter method.
-    def email(self, value):
-        self.user.email = value
-        self.user.save()
-
-    # # DATABASE FIELDS
-    # name = models.ForeignKey(User, to_field="name", verbose_name="Name", on_delete = models.CASCADE,)
-    # email = models.ForeignKey(User, to_field="email", verbose_name="Email", on_delete = models.CASCADE,)
-
-    # user_item = User.objects.get()
-    # name = user_item.name
-    # email = user_item.email
+    user = models.OneToOneField(settings.AUTH_USER_MODEL,
+                                on_delete=models.CASCADE,
+                                related_name='profile',
+                                primary_key=True,
+                                null=False,
+                                blank=False)
 
     SHE = 'SHE'
     HE = 'HE'
@@ -159,10 +129,10 @@ class UserProfile(models.Model):
         (NONE, "Prefer not to say"),
     ]
 
-    picture = models.ImageField(null=True, blank=True, upload_to=image_file_path)
+    picture = models.ImageField(default="NONE", null=True, upload_to=image_file_path)
     bio = models.CharField(max_length=225, blank=True)
     # private info
-    dob = models.DateField()
+    dob = models.DateField(null=True, blank=True) #### something wrong with null here
 
     pronouns = models.CharField(
         max_length=20,
@@ -177,21 +147,27 @@ class UserProfile(models.Model):
         default=NONE,
     )
 
-    custom_gender = models.CharField(
-        max_length=255,
-        blank=True,  # Allow it to be optional
-        null=True,   # Allow it to be null
-    )
-
     # once we create a new feed item automatically add the date time stamp that the item was created
     created_on = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.user.email #show how we want it to be displayed
+        return str(self.user.id) #show how we want it to be displayed
 
-    def save(self, *args, **kwargs):
-        # save the profile first
-        super().save(*args, **kwargs)
+
+def create_profile(sender, instance, created, **kwargs):
+    if created:
+        UserProfile.objects.create(user=instance)
+post_save.connect(create_profile, sender=User)
+
+
+def delete_user(sender, instance=None, **kwargs):
+    try:
+        instance.user
+    except User.DoesNotExist:
+        pass
+    else:
+        instance.user.delete()
+post_delete.connect(delete_user, sender=UserProfile)
 
 
 class Recipe(models.Model):  # models.Model: Django base class

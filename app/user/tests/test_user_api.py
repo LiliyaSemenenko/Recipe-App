@@ -11,14 +11,10 @@ from django.urls import reverse
 from rest_framework.test import APIClient
 from rest_framework import status
 from core.models import UserProfile
-import tempfile
-from PIL import Image  # Pillow Image library
+
 # Add api url that we'll be testing
 # returns full url path inside our project
 # user as app, create as endpoint
-
-# from user.serializers import UserProfileSerializer
-
 CREATE_USER_URL = reverse('user:create')
 
 # url endpoint for creating tokens in our user API
@@ -34,32 +30,8 @@ PROFILE_URL = reverse('user:profile')
 # **params: passes in any dict that contains params and
 # can be called straight into the user
 def create_user(**params):
-    """Create and return a new user with details passed by parameters."""
+    """Create and returna a new user with details passed by parameters."""
     return get_user_model().objects.create_user(**params)
-
-# helper func to generate URL to the upload-image endpoint
-def image_upload_url(user_id):
-    """Create and return a recipe detail URL."""
-    return reverse('profile:profile-upload-image', args=[user_id])
-        # url = image_upload_url(self.recipe.id)
-
-
-def create_profile(user, **params):
-    """Create and return a user profile with details passed by parameters."""
-
-    defaults = {
-        'picture': None,  # Replace with an actual image file if needed
-        'bio': 'My bio.',
-        'dob': '2000-12-12',
-        'pronouns': 'She/Her',
-        'gender': 'Female',
-    }
-    # if params are passed, override their values with defaults
-    defaults.update(params)
-
-    profile = UserProfile.objects.create(user=user, **defaults)
-
-    return profile
 
 
 # Add a test class
@@ -76,19 +48,12 @@ class PublicUserApiTests(TestCase):
 
         # payload that is posted to API to test (register new user info)
         payload = {
-            'name': 'Test Name',
             'email': 'test@example.com',
             'password': 'testpass123',
-            'profile': {
-                'picture': None,
-                'bio': 'Create bio.',
-                'dob': '2000-01-01',
-                'pronouns': 'She/Her',
-                'gender': 'Male',
-            }
+            'name': 'Test Name',
         }
         # post the payload data to the API url
-        res = self.client.post(CREATE_USER_URL, payload, content_type='application/json')
+        res = self.client.post(CREATE_USER_URL, payload)
 
         # check that the endpoints returns HTTP 201 CREATED response
         # (success response code for creating objects in the db via an API)
@@ -97,8 +62,6 @@ class PublicUserApiTests(TestCase):
         # Retrieve the object from the db with the email address
         # that we passed in as the payload.
         user = get_user_model().objects.get(email=payload['email'])
-
-        self.assertTrue(user.exists())
 
         # Validate that the object was actually created
         # in the db after we did the post.
@@ -218,19 +181,21 @@ class PrivateUserApiTests(TestCase):
 
         # creates a test user that will be used for the tests below
         self.user = create_user(
-            name='Test Name',
             email='test@example.com',
             password='testpass123',
+            name='Test Name',
         )
 
-        self.profile = create_profile(
-            user=self.user,
-            picture=None,  # Replace with an actual image file if needed
-            bio="Profile bio.",
-            dob="2017-05-27",
-            pronouns='He/Him',
-            gender='Male',
-        )
+        self.profile = {
+            "user": self.user,
+            "picture": "NONE",
+            "bio": "",
+            "dob": None,
+            "pronouns": "NONE",
+            "gender": "NONE",
+        }
+
+        self.user_id = UserProfile.objects.get(user=self.user)
 
         # creates an API testing Client that is used for testing
         self.client = APIClient()
@@ -245,19 +210,10 @@ class PrivateUserApiTests(TestCase):
 
         # check that response is 200
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-
         # check that data content is what we created for user (line 180)
-        self.assertEqual(res.data, {
-            'name': self.user.name,
-            'email': self.user.email,
-            'profile': {
-                'picture': self.profile.picture,
-                'bio': self.profile.bio,
-                'dob': self.profile.dob,
-                'pronouns': self.profile.pronouns,
-                'gender': self.profile.gender,
-            }
-        })
+        self.assertEqual(res.data['id'], self.user.id)
+        self.assertEqual(res.data['name'], self.user.name)
+        self.assertEqual(res.data['email'], self.user.email)
 
     def test_post_me_not_allowed(self):
         """Test POST is not allowed for the me endpoint."""
@@ -269,62 +225,106 @@ class PrivateUserApiTests(TestCase):
 
         self.assertEqual(res.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
-    def test_update_user_profile(self):
+
+
+
+
+
+
+
+
+
+    # def create_recipe(user, **params):  # **params: dictionary
+    #     """Create and return a sample recipe."""
+
+    #     # create new dictionary
+    #     # default values for the case of no params passed
+    #     defaults = {
+    #         'title': 'Sample recipe title.',
+    #         'time_minutes': 22,
+    #         'price': Decimal('5.25'),
+    #         'description': 'Sample description',
+    #         'link': 'http://example.com/recipe.pdf',
+    #     }
+    #     # if params are passed, override their values with defaults
+    #     defaults.update(params)
+
+    #     # pass defaults to the recipe object
+    #     recipe = Recipe.objects.create(user=user, **defaults)
+    #     return recipe
+
+
+    def detail_url(self, user_id):
+        """Create and return a recipe detail URL."""
+
+        # generate a unique URL for a specific recipes detail endpoint.
+        return reverse('user:profile-detail', args=[user_id])
+
+
+    # def create_user(**params):
+    #     """Create and return a new user."""
+    #     return get_user_model().objects.create_user(**params)
+
+
+    def test_update_user(self):
         """Test updating the user profile for the authenticated user."""
+        payload = {'name': 'Updated name', 'password': 'newpassword123'}
+
+        res = self.client.patch(ME_URL, payload)
+
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.name, payload['name'])
+        self.assertTrue(self.user.check_password(payload['password']))
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+
+    # def test_update_user_returns_error(self):
+    #     """Test changing the recipe user returns in an error."""
+
+    #     new_user = create_user(email='user2@example.com', password='pass123')
+
+    #     # create recipe with authenticated user
+    #     recipe = create_recipe(user=self.user)
+
+    #     # payload with new user id
+    #     payload = {'user_id': new_user.id}  #?????????
+    #     url = self.detail_url(recipe.id)
+    #     # PATCH (partial update) url with payload (user id here)
+    #     self.client.patch(url, payload)
+
+    #     # by default, model is not refreshed, so we call it
+    #     recipe.refresh_from_db()
+
+    #     # make sure that user didn't change
+    #     self.assertEqual(recipe.user, self.user)
+
+    def test_full_update_user_profile(self):
+        """Test updating full user profile for the authenticated user."""
 
         payload = {
-            'name': 'Updated Name',
-            'email': 'update@example.com',
-            'password': 'newpassword123',
-            'profile': {
-                # 'picture': None,
-                'bio': 'Updated bio.',
-                'dob': '2022-02-02',
-                'pronouns': 'They/Them',
-                'gender': 'Custom'
-                }
+            "picture": "NONE",
+            "bio": "Test Bio!",
+            "dob": "1898-12-12",
+            "pronouns": "THEY",
+            "gender": "MALE"
         }
 
-        # http patch request (update) to url, passing payload
-        # res = self.client.patch(ME_URL, payload)
-        res_profile = self.client.patch(ME_URL, payload, format='json')
+        res = self.client.patch(PROFILE_URL, payload, format='json')
 
-        # refresh user values in db
-        self.user.refresh_from_db
-        self.profile.refresh_from_db()
+        self.user.profile.refresh_from_db()
+        self.assertEqual(self.user.profile.bio, payload['bio'])
+        self.assertEqual(self.profile.pronouns, payload['pronouns'])
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-        # check that name and pw in db is the same provided in payload
-        # self.assertEqual(self.user.name, payload['name'])
-        # self.assertTrue(self.user.check_password(payload['password']))
+        # profile = UserProfile.objects.get_object(user=self.user, **payload)
 
-        # self.assertEqual(self.profile.name, payload['name'])
-        self.assertEqual(self.profile.bio, payload['profile']['bio'])
+        # profile.refresh_from_db()
 
-        # self.assertEqual(self.user['profile']['bio'], payload['profile']['bio'])
+        # # user = UserProfile.objects.get(bio=payload['bio'])
 
-        # profiles = UserProfile.objects.filter(user=self.user)
-        # pass all retrieved recepies to a serializer
-        # serializer = UserProfileSerializer(profiles, many=False)
 
-        # self.assertEqual(res.status_code, status.HTTP_200_OK)
-        # self.assertEqual(res.data, serializer.data)
-        # self.assertEqual(res_profile.data, serializer.data)
-        # self.assertEqual(res_profile.data['bio'], serializer.data['bio'])
-
-        for k, v in payload.items():
-            # what's assigned to the key in db should match payload value
-            self.assertEqual(getattr(self.profile, k), v)
-
-        # check authenticated user did not change
-        self.assertEqual(self.profile.user, self.user)
-
-        self.assertEqual(res_profile.data, {
-            # 'name': self.user.name,
-            # 'email': self.user.email,  # check how you can retrieve this info from user !!!
-            'picture': self.profile.picture,
-            'bio': self.profile.bio,
-            'dob': self.profile.dob,
-            'pronouns': self.profile.pronouns,
-            'gender': self.profile.gender,
-        })
-        self.assertEqual(res_profile.status_code, status.HTTP_200_OK)
+        # for k, v in payload.items():
+        #     # what's assigned to the key in db should match payload value
+        #     self.assertEqual(getattr(profile, k), v)
+        # # check authenticated user did not change
+        # self.assertEqual(profile.user, self.user)

@@ -1,31 +1,14 @@
-# from django.conf import settings
-# from django.db.models.signals import pre_save, post_save
-# from django.contrib.auth.signals import user_logged_in
-# from django.dispatch import receiver
-# from rest_framework.authtoken.models import Token
+# from django.db.models.signals import post_save #Import a post_save signal when a user is created
+# from django.contrib.auth.models import User # Import the built-in User model, which is a sender
+# from django.dispatch import receiver # Import the receiver
+# from core.models import UserProfile
 
-
-# before model is saved
-# @receiver(pre_save, sender=settings.AUTH_USER_MODEL)
-# def update_iuser(sender, instance=None,**kwargs):
-#     # instance: an actual object
-#     user = instance
-
-#     if user.email != '':
-#         user.username = user.email
-
-
-# when user is created/updated
-# receiver: The callback function which will be connected to this signal
-# The create_auth_token func will only be called after an instance (user)
-# of AUTH_USER_MODEL is saved.
-# @receiver(post_save, sender=settings.AUTH_USER_MODEL)
-# def create_auth_token(sender, instance=None, created=False, **kwargs):
+# @receiver(post_save, sender=User)
+# def create_profile(sender, instance, created, **kwargs):
 #     if created:
-#         Token.objects.create(user=instance)
+#         UserProfile.objects.create(user=instance)
 
 
-# # when user is logged in
-# @receiver(user_logged_in, sender=settings.AUTH_USER_MODEL)
-# def create_auth_token(sender, request, user, **kwargs):
-#         Token.objects.create(user=user)
+# @receiver(post_save, sender=User)
+# def save_profile(sender, instance, **kwargs):
+#     instance.profile.save()

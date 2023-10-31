@@ -25,6 +25,7 @@ from decimal import Decimal
 
 from core import models
 from core.models import UserProfile
+from datetime import date
 
 
 # helper function for creating a test user
@@ -38,7 +39,9 @@ class ModelTests(TestCase):
     """Test models."""
 
     def test_create_user_with_email_successful(self):
-        """Test creating a user with an email is successful."""
+        """Test creating a user with an email is successful.
+        Plus test creting a user profile."""
+
         email = 'test@example.com'  # @example.com is reserved for testing
         password = 'testpass123'
 
@@ -57,6 +60,19 @@ class ModelTests(TestCase):
         # check_password: method by dafault baseusermanager
         # to check password through a hashing system
         self.assertTrue(user.check_password(password))
+
+        user_profile = {
+            "picture": "NONE",
+            "bio": "",
+            "dob": None,
+            "pronouns": "NONE",
+            "gender": "NONE"
+        }
+        # self.assertEqual(user.profile.picture, user_profile["picture"])
+
+        for k, v in user_profile.items():  # k: key, v: value
+            # getattr(): gets recipe's value
+            self.assertEqual(getattr(user.profile, k), v)
 
     def test_new_user_email_normalized(self):
         """Test email is normalized for new users."""
@@ -100,26 +116,26 @@ class ModelTests(TestCase):
         # is_staff: comes from User class in models.py
         self.assertTrue(user.is_staff)  # allows to login into Django Admin
 
-    def test_create_profile(self):
-        """Test creating a bio in user profcile successful."""
+    # def test_create_profile(self):
+    #     """Test creating a user profile successful."""
 
-        # create a user to assign to our recipe objects
-        user = get_user_model().objects.create_user(
-            'test@example.com',
-            'testpass123',
-        )
+    #     # create a user to assign to our recipe objects
+    #     user = get_user_model().objects.create_user(
+    #         'tests@example.com',
+    #         'testspass123',
+    #     )
 
-        user_profile = UserProfile.objects.create(
-            user=user,
-            picture=None,  # Replace with an actual image file if needed
-            bio="Test bio",
-            dob="2022-01-01",
-            pronouns=UserProfile.SHE,
-            gender=UserProfile.FEMALE
-        )
+    #     user_profile = UserProfile.objects.update(
+    #         user=user,
+    #         picture=None,  # Replace with an actual image file if needed
+    #         bio="Test bio",
+    #         dob="2022-01-01",
+    #         pronouns=UserProfile.SHE,
+    #         gender=UserProfile.FEMALE
+    #     )
 
-        self.assertEqual(user_profile.user, user)
-        self.assertEqual(str(user_profile), user_profile.user.email)
+    #     self.assertEqual(user_profile.user, user)
+    #     self.assertEqual(str(user_profile), user_profile.user.email)
 
     def test_create_recipe(self):
         """Test creating a recipe is successful."""
